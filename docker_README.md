@@ -17,7 +17,7 @@ Docker must be installed on your macne/environment
 Follow the following commands:<br>
 **Step 1**: Build docker image
 ```sh
-docker build -t hello-docker .
+docker build -t ghcp2 .
 ```
 **Step 2**: Verify creation of docker image by listing all images on your system
 ```sh
@@ -25,7 +25,7 @@ docker image ls
 ```
 **Step 3**: Run app
 ```sh
-docker run hello-docker .
+docker run ghcp2 .
 ```
 
 ## How do I delete a docker image?
@@ -40,7 +40,7 @@ docker ps -a
 Method 1:
 Remove the image using it's repo name: docker rm <reponame>:<tag>
 ```sh
-docker rm hello-repo:latest 
+docker rm ghcp2:latest 
 ```
 Method 2: 
 Remove the image by using it's image_id
