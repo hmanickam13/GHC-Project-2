@@ -2,13 +2,13 @@
 
 ## Contents
 1. app.js
-Simple nodejs app
+A simple nodejs app
 
 2. Dockerfile
-File needed to create a docker image
+This is the file needed to create a docker image
 
 3. nodes.md
-Resources I used to learn docker
+Contains resources I used to learn docker
 
 ## Prerequisite
 Docker must be installed on your macne/environment
@@ -27,3 +27,21 @@ docker image ls
 ```sh
 docker run hello-docker .
 ```
+
+## How do I delete a docker image?
+List all active containers
+```sh
+docker ps
+```
+List all containers, including those that have stopped or exited
+```sh
+docker ps -a
+```
+Method 1:
+Remove the image using it's repo name: docker rm <reponame>:<tag>
+```sh
+docker rm hello-repo:latest 
+```
+Method 2: 
+Remove the image by using it's image_id
+docker image rm <image_id>
