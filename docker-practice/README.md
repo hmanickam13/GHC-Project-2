@@ -19,7 +19,7 @@ Follow the following commands:<br>
 ```sh
 docker build -t hello-docker .
 ```
-**Step 2**: Verify creation of docker image
+**Step 2**: Verify creation of docker image by listing all images on your system
 ```sh
 docker image ls
 ```
