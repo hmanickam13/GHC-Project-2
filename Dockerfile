@@ -5,7 +5,7 @@ FROM python:3.10
 WORKDIR /app
 
 # Install xlwings and quantlib
-RUN pip install xlwings quantlib
+RUN pip install xlwings quantlib  pandas
 
 # Copy your Python application code to the container
 COPY . /app
