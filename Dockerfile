@@ -1,14 +1,24 @@
 # Use an official Python runtime as the base image
 FROM python:3.10
 
-# Set the working directory inside the container
-WORKDIR /app
+# Makes sure that logs are shown immediately
+ENV PYTHONUNBUFFERED=1
 
-# Install xlwings and quantlib
-RUN pip install xlwings quantlib  pandas
+# Copy the requirements.txt file to the container
+COPY requirements.txt .
+
+# Install the dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy your Python application code to the container
-COPY . /app
+COPY ./app /app
 
-# Set the entry point to your Python script
-CMD ["python", "quickstart.py"]
+# For google sheets to query
+EXPOSE 8000
+
+# This is for single-container deployments (multiple-workers)
+CMD ["gunicorn", "app.main:app", \
+     "--bind", "0.0.0.0:8000", \
+     "--access-logfile", "-", \
+     "--workers", "2", \
+     "--worker-class", "uvicorn.workers.UvicornWorker"]
