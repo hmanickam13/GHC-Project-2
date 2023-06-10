@@ -10,6 +10,10 @@ COPY requirements.txt .
 # Install the dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
+RUN apt-get update && apt-get install -y \
+    libquantlib0v5 \
+    libquantlib0-dev
+
 # Copy your Python application code to the container
 COPY app /app
 
