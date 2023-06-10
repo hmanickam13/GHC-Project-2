@@ -21,7 +21,7 @@ COPY app /app
 # Set the working directory to /app
 WORKDIR /app
 
-# For google sheets to query
+# Expose port 80 for Google Sheets to query
 EXPOSE 80
 
 # This is for single-container deployments (multiple-workers)

@@ -6,7 +6,7 @@ from pydantic import BaseModel
 import time
 
 import uvicorn
-import quantlib as ql
+import QuantLib as ql
 
 app = FastAPI()
 
