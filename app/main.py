@@ -69,19 +69,30 @@ async def calculate_option_price(request: OptionPriceRequest):
     print(f"Day Count: {day_count_str}")
     print(f"Calendar: {calendar_str}")
 
-    # Assign the date strings as they are
-    maturity_date = maturity_date_str
-    calculation_date = calculation_date_str
-
-    # Convert day count and calendar strings to QuantLib objects
-    day_count = ql.DayCounter(day_count_str)
-    calendar = ql.Calendar(calendar_str)
+    # Convert date strings to QuantLib Dates
+    maturity_date = ql.DateParser.parseFormatted(maturity_date_str, "%m-%d-%Y")
+    calculation_date = ql.DateParser.parseFormatted(calculation_date_str, "%m-%d-%Y")
 
     # Determine option type
-    option_type = ql.Option.Call if option_type_str.lower() == 'call' else ql.Option.Put
+    if option_type_str.lower() == 'call':
+        option_type = ql.Option.Call
+    elif option_type_str.lower() == 'put':
+        option_type = ql.Option.Put
 
     # Set evaluation date
     ql.Settings.instance().evaluationDate = calculation_date
+
+    # Convert day count and calendar strings to QuantLib objects
+    # day_count = ql.Actual365Fixed()
+    if day_count_str.lower() == 'actual365fixed':
+        day_count = ql.Actual365Fixed()
+    # elif day_count_str.lower() == 'actualactual':
+    #     day_count = ql.ActualActual()
+    # Add more conditions for other day count conventions if needed
+
+    calendar = ql.NullCalendar()
+    if calendar_str.lower() == 'usgovbond':
+        calendar = ql.UnitedStates(ql.UnitedStates.GovernmentBond)
 
     # Construct the European option
     payoff = ql.PlainVanillaPayoff(option_type, strike_price)
