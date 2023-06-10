@@ -3,6 +3,8 @@ from fastapi.exceptions import HTTPException
 from fastapi.responses import PlainTextResponse
 from fastapi import Request
 from pydantic import BaseModel
+import time
+
 import uvicorn
 import quantlib as ql
 
@@ -34,11 +36,22 @@ async def calculate_option_price(request: OptionPriceRequest):
     volatility = request.volatility
     dividend = request.dividend
 
-    # Perform option price calculation using QuantLib
-    # Customize this part based on your specific calculation requirements
-    # ...
+    # Print payload variables
+    print("Received payload variables:")
+    print(f"Interest Rate: {interest_rate}")
+    print(f"Maturity: {maturity}")
+    print(f"Strike Price: {strike_price}")
+    print(f"Stock Price: {stock_price}")
+    print(f"Volatility: {volatility}")
+    print(f"Dividend: {dividend}")
 
-    # Example code to calculate the price of a European call option using Black-Scholes formula
+    # Calculate option price
+    print("Calculating option price...")
+
+    # Simulate delay to mimic the calculation process
+    time.sleep(2)  # Adjust the delay time as needed
+    
+    # Code to calculate the price of a European call option using Black-Scholes formula
     option_type = ql.Option.Call  # Assuming it's a call option
     risk_free_rate = ql.SimpleQuote(interest_rate)
     dividend_yield = ql.SimpleQuote(dividend)
@@ -59,6 +72,12 @@ async def calculate_option_price(request: OptionPriceRequest):
     option.setPricingEngine(ql.AnalyticEuropeanEngine(process))
 
     option_price = option.NPV()
+
+    # Print the calculated option price
+    print("Option price calculated:", option_price)
+
+    # Simulate delay to mimic sending the price to Google Sheets
+    time.sleep(1)  # Adjust the delay time as needed
 
     # Return the calculated option price
     return {"option_price": option_price}
