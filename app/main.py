@@ -2,41 +2,72 @@ from fastapi import FastAPI, status
 from fastapi.exceptions import HTTPException
 from fastapi.responses import PlainTextResponse
 from fastapi import Request
-from xlwings import XlwingsError
+from pydantic import BaseModel
 import uvicorn
+import quantlib as ql
 
 app = FastAPI()
 
 # Error handling
-@app.exception_handler(XlwingsError)
-async def xlwings_exception_handler(request: Request, exception: XlwingsError):
-    return PlainTextResponse(
-        str(exception), status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
-    )
-
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request: Request, exception: HTTPException):
     # Return "msg" instead of {"detail": "msg"} for nicer frontend formatting
     return PlainTextResponse(str(exception.detail), status_code=exception.status_code)
 
-# Routers
-# app.include_router(myspreadsheet.router)
+# Define the request model
+class OptionPriceRequest(BaseModel):
+    interestRate: float
+    maturity: float
+    strikePrice: float
+    stockPrice: float
+    volatility: float
+    dividend: float
 
-# Unprotected healthcheck
+# Endpoint to calculate vanilla option price
+@app.post('/vanillaoptionprice')
+async def calculate_option_price(request: OptionPriceRequest):
+    # Extract the input parameters from the request
+    interest_rate = request.interestRate
+    maturity = request.maturity
+    strike_price = request.strikePrice
+    stock_price = request.stockPrice
+    volatility = request.volatility
+    dividend = request.dividend
+
+    # Perform option price calculation using QuantLib
+    # Customize this part based on your specific calculation requirements
+    # ...
+
+    # Example code to calculate the price of a European call option using Black-Scholes formula
+    option_type = ql.Option.Call  # Assuming it's a call option
+    risk_free_rate = ql.SimpleQuote(interest_rate)
+    dividend_yield = ql.SimpleQuote(dividend)
+    underlying_price = ql.SimpleQuote(stock_price)
+    volatility_quote = ql.SimpleQuote(volatility)
+
+    payoff = ql.PlainVanillaPayoff(option_type, strike_price)
+    exercise = ql.EuropeanExercise(maturity)
+
+    process = ql.BlackScholesMertonProcess(
+        ql.QuoteHandle(underlying_price),
+        ql.YieldTermStructureHandle(ql.FlatForward(0, ql.TARGET(), risk_free_rate, ql.Actual365Fixed())),
+        ql.YieldTermStructureHandle(ql.FlatForward(0, ql.TARGET(), dividend_yield, ql.Actual365Fixed())),
+        ql.BlackVolTermStructureHandle(ql.BlackConstantVol(0, ql.TARGET(), volatility_quote, ql.Actual365Fixed()))
+    )
+
+    option = ql.VanillaOption(payoff, exercise)
+    option.setPricingEngine(ql.AnalyticEuropeanEngine(process))
+
+    option_price = option.NPV()
+
+    # Return the calculated option price
+    return {"option_price": option_price}
+
+
+# Unprotected health check
 @app.get("/health")
 async def health():
     return {"status": "ok"}
 
-@app.get('/')
-def test_endpoint(request: Request):
-    client_ip = request.client.host
-    print(f"Received request from IP address: {client_ip}")
-    return "Test Endpoint"
-
 if __name__ == '__main__':
     uvicorn.run(app, host='0.0.0.0', port=80)
-
-# # This function calcukates the price of a vanilla option using quantlib library, its inputs are
-# @app.get('/vanillaoptionprice')
-# async def vanilla_option_price(request: Request):
-
