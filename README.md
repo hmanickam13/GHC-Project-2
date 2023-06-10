@@ -67,8 +67,10 @@ We can start the flask application
 ## Google Sheets
 Hyperlink: https://docs.google.com/spreadsheets/d/1m9DkYm1JcmWz36gk4nxD2cYi_G0-DFs4PEEdMI1TDs4/edit?usp=sharing
 <br>
-Next, we need to paste the output of the following command into AppsScript on Google Sheets xlwings.js
+Next, we need to paste the output of the following command into AppsScript on Google Sheets xlwings.js.
 ```sh
 cp /usr/local/python/3.10.4/lib/python3.10/site-packages/xlwings/js/xlwings.js .
 ```
+Alternatively, the output of the above command is in the googlesheets directory.
+<br>
 You can now add function calls inside your main.gs on AppsScript on Google Sheets

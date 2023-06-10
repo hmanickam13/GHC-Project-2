@@ -11,13 +11,16 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy your Python application code to the container
-COPY ./app /app
+COPY app /app
+
+# Set the working directory to /app
+WORKDIR /app
 
 # For google sheets to query
 EXPOSE 8000
 
 # This is for single-container deployments (multiple-workers)
-CMD ["gunicorn", "app.main:app", \
+CMD ["gunicorn", "main:app", \
      "--bind", "0.0.0.0:8000", \
      "--access-logfile", "-", \
      "--workers", "2", \
