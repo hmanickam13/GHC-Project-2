@@ -3,7 +3,9 @@ from fastapi.exceptions import HTTPException
 from fastapi.responses import PlainTextResponse
 from fastapi import Request
 from pydantic import BaseModel
+
 import time
+import logging
 
 import uvicorn
 import QuantLib as ql
@@ -13,8 +15,18 @@ app = FastAPI()
 # Error handling
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request: Request, exception: HTTPException):
+    # Log the exception details
+    logging.error(f"Exception occurred: {exception}")
+
     # Return "msg" instead of {"detail": "msg"} for nicer frontend formatting
     return PlainTextResponse(str(exception.detail), status_code=exception.status_code)
+
+# Unprotected health check
+@app.get("/health")
+async def health(request: Request):
+    client_ip = request.client.host
+    print(f"Request received from IP address: {client_ip}")
+    return {"status": "ok"}
 
 # Define the request model
 class OptionPriceRequest(BaseModel):
@@ -82,11 +94,6 @@ async def calculate_option_price(request: OptionPriceRequest):
     # Return the calculated option price
     return {"option_price": option_price}
 
-
-# Unprotected health check
-@app.get("/health")
-async def health():
-    return {"status": "ok"}
 
 if __name__ == '__main__':
     uvicorn.run(app, host='0.0.0.0', port=80)
