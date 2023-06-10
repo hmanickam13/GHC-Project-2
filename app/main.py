@@ -30,8 +30,8 @@ async def health(request: Request):
 
 # Define the request model
 class OptionPriceRequest(BaseModel):
-    maturityDate: float
-    calculationDate: float
+    maturityDate: str
+    calculationDate: str
     spot: float
     strike: float
     volatility: float
@@ -69,9 +69,9 @@ async def calculate_option_price(request: OptionPriceRequest):
     print(f"Day Count: {day_count_str}")
     print(f"Calendar: {calendar_str}")
 
-    # Convert date strings to QuantLib Dates
-    maturity_date = ql.Date(int(maturity_date_str[3:5]), int(maturity_date_str[0:2]), int(maturity_date_str[6:10]))
-    calculation_date = ql.Date(int(calculation_date_str[3:5]), int(calculation_date_str[0:2]), int(calculation_date_str[6:10]))
+    # Assign the date strings as they are
+    maturity_date = maturity_date_str
+    calculation_date = calculation_date_str
 
     # Convert day count and calendar strings to QuantLib objects
     day_count = ql.DayCounter(day_count_str)
