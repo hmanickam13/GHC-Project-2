@@ -30,8 +30,8 @@ async def health(request: Request):
 
 # Define the request model
 class OptionPriceRequest(BaseModel):
-    maturityDate: float
-    calculationDate: float
+    maturityDate: str
+    calculationDate: str
     spot: float
     strike: float
     volatility: float
