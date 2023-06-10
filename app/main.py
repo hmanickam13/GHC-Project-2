@@ -34,7 +34,7 @@ def test_endpoint(request: Request):
     return "Test Endpoint"
 
 if __name__ == '__main__':
-    uvicorn.run(app, host='0.0.0.0', port=8000)
+    uvicorn.run(app, host='0.0.0.0', port=80)
 
 # # This function calcukates the price of a vanilla option using quantlib library, its inputs are
 # @app.get('/vanillaoptionprice')

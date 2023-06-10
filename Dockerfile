@@ -17,11 +17,11 @@ COPY app /app
 WORKDIR /app
 
 # For google sheets to query
-EXPOSE 8000
+EXPOSE 80
 
 # This is for single-container deployments (multiple-workers)
 CMD ["gunicorn", "main:app", \
-     "--bind", "0.0.0.0:8000", \
+     "--bind", "0.0.0.0:80", \
      "--access-logfile", "-", \
      "--workers", "2", \
      "--worker-class", "uvicorn.workers.UvicornWorker"]
