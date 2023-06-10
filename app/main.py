@@ -72,11 +72,11 @@ async def calculate_option_price(request: OptionPriceRequest):
     # Extract the individual characters for the dates
     maturity_day = int(maturity_date_str[3:5])
     maturity_month = int(maturity_date_str[0:2])
-    maturity_year = int(maturity_date_str[5:])
+    maturity_year = int(maturity_date_str[6:])
 
     calculation_day = int(calculation_date_str[3:5])
     calculation_month = int(calculation_date_str[0:2])
-    calculation_year = int(calculation_date_str[5:])
+    calculation_year = int(calculation_date_str[6:])
 
     # Convert date integers to QuantLib Dates
     maturity_date = ql.Date(maturity_day, maturity_month, maturity_year)
