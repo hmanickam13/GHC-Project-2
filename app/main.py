@@ -30,66 +30,75 @@ async def health(request: Request):
 
 # Define the request model
 class OptionPriceRequest(BaseModel):
-    interestRate: float
-    maturity: float
-    strikePrice: float
-    stockPrice: float
+    maturityDate: float
+    calculationDate: float
+    spot: float
+    strike: float
     volatility: float
-    dividend: float
+    dividendRate: float
+    riskFreeRate: float
+    optionType: str
+    dayCount: str
+    calendar: str
 
 # Endpoint to calculate vanilla option price
 @app.post('/vanillaoptionprice')
 async def calculate_option_price(request: OptionPriceRequest):
     # Extract the input parameters from the request
-    interest_rate = request.interestRate
-    maturity = request.maturity
-    strike_price = request.strikePrice
-    stock_price = request.stockPrice
+    maturity_date_str = request.maturityDate
+    calculation_date_str = request.calculationDate
+    spot_price = request.spot
+    strike_price = request.strike
     volatility = request.volatility
-    dividend = request.dividend
+    dividend_rate = request.dividendRate
+    risk_free_rate = request.riskFreeRate
+    option_type_str = request.optionType
+    day_count_str = request.dayCount
+    calendar_str = request.calendar
 
-    # Print payload variables
-    print("Received payload variables:")
-    print(f"Interest Rate: {interest_rate}")
-    print(f"Maturity: {maturity}")
+    # Print the extracted input parameters
+    print("Extracted input parameters:")
+    print(f"Maturity Date: {maturity_date_str}")
+    print(f"Calculation Date: {calculation_date_str}")
+    print(f"Spot Price: {spot_price}")
     print(f"Strike Price: {strike_price}")
-    print(f"Stock Price: {stock_price}")
     print(f"Volatility: {volatility}")
-    print(f"Dividend: {dividend}")
+    print(f"Dividend Rate: {dividend_rate}")
+    print(f"Risk-Free Rate: {risk_free_rate}")
+    print(f"Option Type: {option_type_str}")
+    print(f"Day Count: {day_count_str}")
+    print(f"Calendar: {calendar_str}")
 
-    # Calculate option price
-    print("Calculating option price...")
+    # Convert date strings to QuantLib Dates
+    maturity_date = ql.Date(int(maturity_date_str[3:5]), int(maturity_date_str[0:2]), int(maturity_date_str[6:10]))
+    calculation_date = ql.Date(int(calculation_date_str[3:5]), int(calculation_date_str[0:2]), int(calculation_date_str[6:10]))
 
-    # Simulate delay to mimic the calculation process
-    time.sleep(2)  # Adjust the delay time as needed
-    
-    # Code to calculate the price of a European call option using Black-Scholes formula
-    option_type = ql.Option.Call  # Assuming it's a call option
-    risk_free_rate = ql.SimpleQuote(interest_rate)
-    dividend_yield = ql.SimpleQuote(dividend)
-    underlying_price = ql.SimpleQuote(stock_price)
-    volatility_quote = ql.SimpleQuote(volatility)
+    # Convert day count and calendar strings to QuantLib objects
+    day_count = ql.DayCounter(day_count_str)
+    calendar = ql.Calendar(calendar_str)
 
+    # Determine option type
+    option_type = ql.Option.Call if option_type_str.lower() == 'call' else ql.Option.Put
+
+    # Set evaluation date
+    ql.Settings.instance().evaluationDate = calculation_date
+
+    # Construct the European option
     payoff = ql.PlainVanillaPayoff(option_type, strike_price)
-    exercise = ql.EuropeanExercise(maturity)
+    exercise = ql.EuropeanExercise(maturity_date)
+    european_option = ql.VanillaOption(payoff, exercise)
+    
+    # Construct the Black-Scholes-Merton process
+    print(f"Constructing BSM process... {calendar_str}")
+    spot_handle = ql.QuoteHandle(ql.SimpleQuote(spot_price))
+    flat_ts = ql.YieldTermStructureHandle(ql.FlatForward(0, calendar, risk_free_rate, day_count))
+    dividend_yield = ql.YieldTermStructureHandle(ql.FlatForward(0, calendar, dividend_rate, day_count))
+    flat_vol_ts = ql.BlackVolTermStructureHandle(ql.BlackConstantVol(0, calendar, volatility, day_count))
+    bsm_process = ql.BlackScholesMertonProcess(spot_handle, dividend_yield, flat_ts, flat_vol_ts)
 
-    process = ql.BlackScholesMertonProcess(
-        ql.QuoteHandle(underlying_price),
-        ql.YieldTermStructureHandle(ql.FlatForward(0, ql.TARGET(), risk_free_rate, ql.Actual365Fixed())),
-        ql.YieldTermStructureHandle(ql.FlatForward(0, ql.TARGET(), dividend_yield, ql.Actual365Fixed())),
-        ql.BlackVolTermStructureHandle(ql.BlackConstantVol(0, ql.TARGET(), volatility_quote, ql.Actual365Fixed()))
-    )
-
-    option = ql.VanillaOption(payoff, exercise)
-    option.setPricingEngine(ql.AnalyticEuropeanEngine(process))
-
-    option_price = option.NPV()
-
-    # Print the calculated option price
-    print("Option price calculated:", option_price)
-
-    # Simulate delay to mimic sending the price to Google Sheets
-    time.sleep(1)  # Adjust the delay time as needed
+    # Set pricing engine and calculate option price
+    european_option.setPricingEngine(ql.AnalyticEuropeanEngine(bsm_process))
+    option_price = european_option.NPV()
 
     # Return the calculated option price
     return {"option_price": option_price}
