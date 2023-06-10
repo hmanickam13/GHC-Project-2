@@ -6,25 +6,8 @@ ENV PYTHONUNBUFFERED=1
 
 # Install system dependencies for QuantLib
 RUN apt-get update && apt-get install -y \
-    libboost-python-dev \
-    libboost-thread-dev \
-    libboost-system-dev \
-    libboost-serialization-dev \
-    libboost-filesystem-dev \
-    libboost-test-dev \
-    libboost-regex-dev \
-    libboost-iostreams-dev \
-    cmake
-
-# Download and build QuantLib from source
-RUN wget https://github.com/lballabio/QuantLib/releases/download/QuantLib-v1.30/QuantLib-1.30.tar.gz && \
-    tar -xvf QuantLib-1.30.tar.gz && \
-    cd QuantLib-1.30 && \
-    mkdir build && \
-    cd build && \
-    cmake -DCMAKE_INSTALL_PREFIX=/usr .. && \
-    make -j $(nproc) && \
-    make install
+    libquantlib0v5 \
+    libquantlib0-dev
 
 # Copy the requirements.txt file to the container
 COPY requirements.txt .
