@@ -70,8 +70,11 @@ async def calculate_option_price(request: OptionPriceRequest):
     print(f"Calendar: {calendar_str}")
 
     # Convert date strings to QuantLib Dates
-    maturity_date = ql.DateParser.parseFormatted(maturity_date_str, "%m-%d-%Y")
-    calculation_date = ql.DateParser.parseFormatted(calculation_date_str, "%m-%d-%Y")
+    maturity_date_parts = maturity_date_str.split('-')
+    maturity_date = ql.Date(int(maturity_date_parts[2]), int(maturity_date_parts[0]), int(maturity_date_parts[1]))
+
+    calculation_date_parts = calculation_date_str.split('-')
+    calculation_date = ql.Date(int(calculation_date_parts[2]), int(calculation_date_parts[0]), int(calculation_date_parts[1]))
 
     # Determine option type
     if option_type_str.lower() == 'call':
