@@ -30,8 +30,8 @@ async def health(request: Request):
 
 # Define the request model
 class OptionPriceRequest(BaseModel):
-    maturityDate: str
-    calculationDate: str
+    maturityDate: float
+    calculationDate: float
     spot: float
     strike: float
     volatility: float
@@ -45,8 +45,8 @@ class OptionPriceRequest(BaseModel):
 @app.post('/vanillaoptionprice')
 async def calculate_option_price(request: OptionPriceRequest):
     # Extract the input parameters from the request
-    maturity_date_str = request.maturityDate
-    calculation_date_str = request.calculationDate
+    maturity_date_str = str(request.maturityDate)
+    calculation_date_str = str(request.calculationDate)
     spot_price = request.spot
     strike_price = request.strike
     volatility = request.volatility
@@ -69,12 +69,18 @@ async def calculate_option_price(request: OptionPriceRequest):
     print(f"Day Count: {day_count_str}")
     print(f"Calendar: {calendar_str}")
 
-    # Convert date strings to QuantLib Dates
-    maturity_date_parts = maturity_date_str.split('-')
-    maturity_date = ql.Date(int(maturity_date_parts[2]), int(maturity_date_parts[0]), int(maturity_date_parts[1]))
+    # Extract the individual characters for the dates
+    maturity_day = int(maturity_date_str[3:5])
+    maturity_month = int(maturity_date_str[0:2])
+    maturity_year = int(maturity_date_str[5:])
 
-    calculation_date_parts = calculation_date_str.split('-')
-    calculation_date = ql.Date(int(calculation_date_parts[2]), int(calculation_date_parts[0]), int(calculation_date_parts[1]))
+    calculation_day = int(calculation_date_str[3:5])
+    calculation_month = int(calculation_date_str[0:2])
+    calculation_year = int(calculation_date_str[5:])
+
+    # Convert date integers to QuantLib Dates
+    maturity_date = ql.Date(maturity_day, maturity_month, maturity_year)
+    calculation_date = ql.Date(calculation_day, calculation_month, calculation_year)
 
     # Determine option type
     if option_type_str.lower() == 'call':
