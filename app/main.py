@@ -104,7 +104,6 @@ async def calculate_option_price(request: OptionPriceRequest):
     calendar = ql.NullCalendar()
     if calendar_str.lower() == 'usgovbond':
         calendar = ql.UnitedStates(ql.UnitedStates.GovernmentBond)
-    elif
 
     # Construct the European option
     payoff = ql.PlainVanillaPayoff(option_type, strike_price)
