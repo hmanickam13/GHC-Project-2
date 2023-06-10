@@ -95,13 +95,16 @@ async def calculate_option_price(request: OptionPriceRequest):
     # day_count = ql.Actual365Fixed()
     if day_count_str.lower() == 'actual365fixed':
         day_count = ql.Actual365Fixed()
-    # elif day_count_str.lower() == 'actualactual':
-    #     day_count = ql.ActualActual()
+    elif day_count_str.lower() == 'actual360':
+        day_count = ql.Actual360()
+    elif day_count_str.lower() == 'actualactual':
+        day_count = ql.ActualActual()
     # Add more conditions for other day count conventions if needed
 
     calendar = ql.NullCalendar()
     if calendar_str.lower() == 'usgovbond':
         calendar = ql.UnitedStates(ql.UnitedStates.GovernmentBond)
+    elif
 
     # Construct the European option
     payoff = ql.PlainVanillaPayoff(option_type, strike_price)
