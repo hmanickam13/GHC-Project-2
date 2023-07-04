@@ -67,18 +67,18 @@ class OptionPriceRequest(BaseModel):
 @app.post('/webpricer')
 async def calculate_option_price(request: Request, payload: OptionPriceRequest):
     # Extract the input parameters from the request
-    CURRENCY_PAIR = request.CURRENCY_PAIR
-    MATURITY = request.MATURITY
-    STRIKE = request.STRIKE
-    NOTIONAL = request.NOTIONAL
-    EXOTIC_TYPE = request.EXOTIC_TYPE
-    TYPE = request.TYPE
-    UPPER_BARRIER = request.UPPER_BARRIER
-    LOWER_BARRIER = request.LOWER_BARRIER
-    WINDOW_START_DATE = request.WINDOW_START_DATE
-    WINDOW_END_DATE = request.WINDOW_END_DATE
-    SPOT = request.SPOT
-    VOLATILITY = request.VOLATILITY
+    CURRENCY_PAIR = payload.CURRENCY_PAIR
+    MATURITY = payload.MATURITY
+    STRIKE = payload.STRIKE
+    NOTIONAL = payload.NOTIONAL
+    EXOTIC_TYPE = payload.EXOTIC_TYPE
+    TYPE = payload.TYPE
+    UPPER_BARRIER = payload.UPPER_BARRIER
+    LOWER_BARRIER = payload.LOWER_BARRIER
+    WINDOW_START_DATE = payload.WINDOW_START_DATE
+    WINDOW_END_DATE = payload.WINDOW_END_DATE
+    SPOT = payload.SPOT
+    VOLATILITY = payload.VOLATILITY
 
     # Print the extracted input parameters
     print("Extracted input parameters:")
