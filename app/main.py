@@ -128,10 +128,13 @@ async def calculate_option_prices_bulk(payload: BulkOptionPriceRequest):
         # Iterate through each JSON package
         for i, payload in enumerate(payloads):
             # Extract the input parameters from the payload
-            # input_params =  payload.dict()
+            input_params = payload.dict()
+
+            # Print the length of the payload
+            print(f"Payload length: {len(input_params)}")
 
             # Make a request to the specific route /webpricer
-            response = await client.post('http://localhost:80/webpricer', json= payload.dict())
+            response = await client.post('http://localhost:80/webpricer', json=input_params)
             response.raise_for_status()  # Optional: Raise an exception for non-2xx responses
 
             # Retrieve the option price from the response
@@ -147,6 +150,7 @@ async def calculate_option_prices_bulk(payload: BulkOptionPriceRequest):
 
     # Return the list of option prices as the final response
     return {"option_prices": option_values}
+
 
 
 
