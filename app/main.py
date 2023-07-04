@@ -39,11 +39,11 @@ async def example(request: Request):
 class MessagePayload(BaseModel):
     message: str
 
-@app.put("/example_put")
-async def example_put(request: Request, payload: MessagePayload, exception: HTTPException):
+@app.put("/example")
+async def example_put(request: Request, payload: MessagePayload):
     print("PUT request received:")
     print(payload.dict())
-    return JSONResponse(content={"status": "ok"}, status_code=200)
+    return {"status": "ok"}
 
 
 # Define the request model
