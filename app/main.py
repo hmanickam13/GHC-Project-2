@@ -4,6 +4,7 @@ from fastapi.responses import PlainTextResponse, JSONResponse
 from fastapi import Request
 from pydantic import BaseModel
 
+import asyncio
 import time
 import logging
 import httpx
@@ -124,40 +125,38 @@ async def calculate_option_prices_bulk(payload: BulkOptionPriceRequest):
     num_rows = len(payloads)
     option_values = []  # List to store the calculated option prices
 
-    # Print the payload as it is
-    print("Payload:", payloads)
+    async with httpx.AsyncClient() as client:
+        tasks = []  # List to store the asynchronous tasks
 
-    # async with httpx.AsyncClient() as client:
+        # Iterate through each payload item
+        for i, payload in enumerate(payloads):
+            # Extract the input parameters from the payload
+            input_params = payload.dict()
 
-    #     # Print the length of the payload
-    #     print(f"Payloads length: {num_rows}")
+            # Make a request to the specific route /webpricer
+            task = asyncio.create_task(client.post('http://localhost:80/webpricer', json=input_params))
+            tasks.append((i, task))  # Store the task along with the index
 
-    #     # Iterate through each JSON package
-    #     for i, payload in enumerate(payloads):
-    #         # Extract the input parameters from the payload
-    #         input_params = payload.dict()
+        # Wait for all the tasks to complete
+        for i, task in tasks:
+            response = await task
+            response.raise_for_status()  # Optional: Raise an exception for non-2xx responses
 
-    #         # Print the length of the payload
-    #         print(f"Payload length: {len(input_params)}")
+            # Retrieve the option price from the response
+            data = await response.json()
+            option_price = data["option_price"]
 
-    #         # Make a request to the specific route /webpricer
-    #         response = await client.post('http://localhost:80/webpricer', json=input_params)
-    #         response.raise_for_status()  # Optional: Raise an exception for non-2xx responses
+            # Store the option price along with the index
+            option_values.append((i, option_price))
 
-    #         # Retrieve the option price from the response
-    #         data = await response.json()
-    #         option_price = data["option_price"]
+    # Sort the option prices based on the original order
+    option_values.sort(key=lambda x: x[0])
 
-    #         # Append the option price to the list
-    #         option_values.append(option_price)
-
-    #         # Print the statement for the last option
-    #         if i == num_rows - 1:
-    #             print("All rows received")
+    # Extract the option prices without the index
+    option_prices = [price for _, price in option_values]
 
     # Return the list of option prices as the final response
-    return {"option_prices": option_values}
-
+    return {"option_prices": option_prices}
 
 
 
