@@ -17,6 +17,33 @@ sudo apt-get update
 sudo apt-get install python3-pip git
 ```
 
+### Using a Python Virtual Environment
+
+4. Create virtual environment & activate it
+```sh
+python3 -m venv venv
+source venv/bin/activate
+```
+5. Install dependencies
+```sh
+pip install -r requirements.txt
+``` 
+
+6. Clone the project repo
+```sh
+git clone https://github.com/hmanickam13/GHC-Project-2.git
+```
+
+Now you are good to go!
+We can start the flask application
+
+7. Navigate to app directory & launch app
+```sh
+uvicorn main:app --host 0.0.0.0 --port 80
+```
+```
+
+### Using Docker
 4. Install docker
 Install necessary packages to allow apt to use a repository over HTTPS:
 ```sh
