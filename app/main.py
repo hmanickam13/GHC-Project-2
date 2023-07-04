@@ -125,6 +125,10 @@ async def calculate_option_prices_bulk(payload: BulkOptionPriceRequest):
     option_values = []  # List to store the calculated option prices
 
     async with httpx.AsyncClient() as client:
+
+        # Print the length of the payload
+        print(f"Payloads length: {len(input_params)}")
+
         # Iterate through each JSON package
         for i, payload in enumerate(payloads):
             # Extract the input parameters from the payload
