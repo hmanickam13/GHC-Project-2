@@ -124,33 +124,36 @@ async def calculate_option_prices_bulk(payload: BulkOptionPriceRequest):
     num_rows = len(payloads)
     option_values = []  # List to store the calculated option prices
 
-    async with httpx.AsyncClient() as client:
+    # Print the payload as it is
+    print("Payload:", payloads)
 
-        # Print the length of the payload
-        print(f"Payloads length: {num_rows}")
+    # async with httpx.AsyncClient() as client:
 
-        # Iterate through each JSON package
-        for i, payload in enumerate(payloads):
-            # Extract the input parameters from the payload
-            input_params = payload.dict()
+    #     # Print the length of the payload
+    #     print(f"Payloads length: {num_rows}")
 
-            # Print the length of the payload
-            print(f"Payload length: {len(input_params)}")
+    #     # Iterate through each JSON package
+    #     for i, payload in enumerate(payloads):
+    #         # Extract the input parameters from the payload
+    #         input_params = payload.dict()
 
-            # Make a request to the specific route /webpricer
-            response = await client.post('http://localhost:80/webpricer', json=input_params)
-            response.raise_for_status()  # Optional: Raise an exception for non-2xx responses
+    #         # Print the length of the payload
+    #         print(f"Payload length: {len(input_params)}")
 
-            # Retrieve the option price from the response
-            data = await response.json()
-            option_price = data["option_price"]
+    #         # Make a request to the specific route /webpricer
+    #         response = await client.post('http://localhost:80/webpricer', json=input_params)
+    #         response.raise_for_status()  # Optional: Raise an exception for non-2xx responses
 
-            # Append the option price to the list
-            option_values.append(option_price)
+    #         # Retrieve the option price from the response
+    #         data = await response.json()
+    #         option_price = data["option_price"]
 
-            # Print the statement for the last option
-            if i == num_rows - 1:
-                print("All rows received")
+    #         # Append the option price to the list
+    #         option_values.append(option_price)
+
+    #         # Print the statement for the last option
+    #         if i == num_rows - 1:
+    #             print("All rows received")
 
     # Return the list of option prices as the final response
     return {"option_prices": option_values}
