@@ -122,7 +122,7 @@ async def calculate_option_prices_bulk(requests: List[OPRequest]):
     async with httpx.AsyncClient() as client:
         # Iterate through each JSON package
         for i, request in enumerate(requests):
-            print("Sending request for row: ", i");
+            # print("Sending request for row: ", i");
             # Make a request to the specific route /webpricer
             response = await client.post('http://localhost:80/webpricer', json=request.dict())
             response.raise_for_status()  # Optional: Raise an exception for non-2xx responses
