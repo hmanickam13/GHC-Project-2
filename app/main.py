@@ -8,6 +8,7 @@ import time
 import logging
 import httpx
 from typing import List
+from typing import Optional
 
 import uvicorn
 import QuantLib as ql
@@ -27,13 +28,13 @@ async def http_exception_handler(request: Request, exception: HTTPException):
 @app.get("/health")
 async def health(request: Request):
     client_ip = request.client.host
-    print(f"Request received from IP address: {client_ip}")
-    return {"status": "ok"}
+    print(f"Get request received from IP address: {client_ip}")
+    return {"status": "active"}
 
 
 @app.post("/example")
 async def example(request: Request):
-    return {"message": "Empty POST request received"}
+    return {"message": "Empty POST request received by server"}
 
 
 class MessagePayload(BaseModel):
@@ -41,7 +42,6 @@ class MessagePayload(BaseModel):
 
 @app.put("/example")
 async def example_put(request: Request, payload: MessagePayload):
-    print("PUT request received:")
     print(payload.dict())
     return {"status": "ok"}
 
@@ -49,22 +49,23 @@ async def example_put(request: Request, payload: MessagePayload):
 # Define the request model
 class OptionPriceRequest(BaseModel):
     
+    # We take every input parameter as a string because some fields may be empty and a float does not accept empty values
     CURRENCY_PAIR: str
     MATURITY: str
-    STRIKE: float
-    NOTIONAL: float
+    STRIKE: str
+    NOTIONAL: str
     EXOTIC_TYPE: str
     TYPE: str
-    UPPER_BARRIER: float
-    LOWER_BARRIER: float
+    UPPER_BARRIER: str
+    LOWER_BARRIER: str
     WINDOW_START_DATE: str
     WINDOW_END_DATE: str
-    SPOT: float
-    VOLATILITY: float
+    SPOT: str
+    VOLATILITY: str
 
 # Endpoint to calculate vanilla option price
 @app.post('/webpricer')
-async def calculate_option_price(request: OptionPriceRequest):
+async def calculate_option_price(request: Request, payload: OptionPriceRequest):
     # Extract the input parameters from the request
     CURRENCY_PAIR = request.CURRENCY_PAIR
     MATURITY = request.MATURITY
@@ -98,6 +99,7 @@ async def calculate_option_price(request: OptionPriceRequest):
 
   # Return the calculated option price
     return {"option_price": option_price}
+
 
 
 class OPRequest(BaseModel):
