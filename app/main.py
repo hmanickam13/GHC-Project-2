@@ -66,7 +66,7 @@ class OptionPriceRequest(BaseModel):
 
 # Endpoint to calculate vanilla option price
 @app.post('/webpricer')
-async def calculate_option_price(request: Request, payload: OptionPriceRequest):
+async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
     # Extract the input parameters from the request
     CURRENCY_PAIR = payload.CURRENCY_PAIR
     MATURITY = payload.MATURITY
@@ -96,10 +96,59 @@ async def calculate_option_price(request: Request, payload: OptionPriceRequest):
     print(f"SPOT: {SPOT}")
     print(f"VOLATILITY: {VOLATILITY}")
 
-    option_price = 4500
+    # Preprocess the fields based on the exotic type
+    processed_fields = {}
+    if EXOTIC_TYPE == 'Vanilla':
+        processed_fields = {
+            'CURRENCY_PAIR': CURRENCY_PAIR,
+            'MATURITY': MATURITY,
+            'STRIKE': STRIKE,
+            'TYPE': TYPE
+        }
+    elif EXOTIC_TYPE == 'KO_Barrier':
+        processed_fields = {
+            'CURRENCY_PAIR': CURRENCY_PAIR,
+            'MATURITY': MATURITY,
+            'STRIKE': STRIKE,
+            'TYPE': TYPE,
+            'UPPER_BARRIER': UPPER_BARRIER,
+            'LOWER_BARRIER': LOWER_BARRIER
+        }
+    elif EXOTIC_TYPE == 'KI_Barrier':
+        processed_fields = {
+            'CURRENCY_PAIR': CURRENCY_PAIR,
+            'MATURITY': MATURITY,
+            'STRIKE': STRIKE,
+            'TYPE': TYPE,
+            'UPPER_BARRIER': UPPER_BARRIER
+        }
+    elif EXOTIC_TYPE == 'KO_Win_Barrier':
+        processed_fields = {
+            'CURRENCY_PAIR': CURRENCY_PAIR,
+            'MATURITY': MATURITY,
+            'STRIKE': STRIKE,
+            'TYPE': TYPE,
+            'UPPER_BARRIER': UPPER_BARRIER,
+            'LOWER_BARRIER': LOWER_BARRIER,
+            'WINDOW_START_DATE': WINDOW_START_DATE,
+            'WINDOW_END_DATE': WINDOW_END_DATE
+        }
+    # Add more conditions for other exotic types
 
-  # Return the calculated option price
-    return {"option_price": option_price}
+    # Print the processed fields
+    print("Processed fields:")
+    print(processed_fields)
+
+    # Call the function that performs calculations using the processed fields
+    # OPTION_PRICE = calculate_option_price(processed_fields)
+    OPTION_PRICE = 4500
+    print(f"OPTION_PRICE: {OPTION_PRICE}")
+
+    # Return the calculated option price
+    return {"option_price": OPTION_PRICE}
+
+
+
 
     # CURRENCY_PAIR: str
     # MATURITY: str
