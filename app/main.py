@@ -132,7 +132,9 @@ async def calculate_option_prices_bulk(payload: BulkOptionPriceRequest):
             # Iterate through each payload item
             for i, payload in enumerate(payloads):
                 # Extract the input parameters from the payload
-                input_params = payload.dict()
+                input_params = {}
+                for field, value in payload:
+                    input_params[field] = value or ""
 
                 # Make a request to the specific route /webpricer
                 task = asyncio.create_task(client.post('http://localhost:80/webpricer', json=input_params))
@@ -166,6 +168,7 @@ async def calculate_option_prices_bulk(payload: BulkOptionPriceRequest):
 
     # Return the list of option prices as the final response
     return {"option_prices": option_prices}
+
 
 
 
