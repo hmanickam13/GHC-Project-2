@@ -23,12 +23,12 @@ async def http_exception_handler(request: Request, exception: HTTPException):
     # Return "msg" instead of {"detail": "msg"} for nicer frontend formatting
     return PlainTextResponse(str(exception.detail), status_code=exception.status_code)
 
-# # Unprotected health check
-# @app.get("/health")
-# async def health(request: Request):
-#     client_ip = request.client.host
-#     print(f"Request received from IP address: {client_ip}")
-#     return {"status": "ok"}
+# Unprotected health check
+@app.get("/health")
+async def health(request: Request):
+    client_ip = request.client.host
+    print(f"Request received from IP address: {client_ip}")
+    return {"status": "ok"}
 
 
 @app.post("/example")
