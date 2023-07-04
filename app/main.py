@@ -135,6 +135,8 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
         }
     # Add more conditions for other exotic types
 
+    # Print the option type
+    print(f"\nEXOTIC_TYPE: {EXOTIC_TYPE}")
     # Print the processed fields
     print("Processed fields:")
     print(processed_fields)
@@ -142,7 +144,7 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
     # Call the function that performs calculations using the processed fields
     # OPTION_PRICE = calculate_option_price(processed_fields)
     OPTION_PRICE = 4500
-    print(f"OPTION_PRICE: {OPTION_PRICE}")
+    print(f"\nOPTION_PRICE: {OPTION_PRICE}")
 
     # Return the calculated option price
     return {"option_price": OPTION_PRICE}
