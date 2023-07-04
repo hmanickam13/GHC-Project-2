@@ -100,21 +100,34 @@ async def calculate_option_price(request: Request, payload: OptionPriceRequest):
   # Return the calculated option price
     return {"option_price": option_price}
 
-
+    # CURRENCY_PAIR: str
+    # MATURITY: str
+    # STRIKE: float
+    # NOTIONAL: float
+    # EXOTIC_TYPE: str
+    # TYPE: str
+    # UPPER_BARRIER: float
+    # LOWER_BARRIER: float
+    # WINDOW_START_DATE: str
+    # WINDOW_END_DATE: str
+    # SPOT: float
+    # VOLATILITY: float
 
 class OPRequest(BaseModel):
+
+
     CURRENCY_PAIR: str
     MATURITY: str
-    STRIKE: float
-    NOTIONAL: float
+    STRIKE: str
+    NOTIONAL: str
     EXOTIC_TYPE: str
     TYPE: str
-    UPPER_BARRIER: float
-    LOWER_BARRIER: float
+    UPPER_BARRIER: str
+    LOWER_BARRIER: str
     WINDOW_START_DATE: str
     WINDOW_END_DATE: str
-    SPOT: float
-    VOLATILITY: float
+    SPOT: str
+    VOLATILITY: str
 
 @app.post('/bulkwebpricer')
 async def calculate_option_prices_bulk(requests: List[OPRequest]):
@@ -124,7 +137,6 @@ async def calculate_option_prices_bulk(requests: List[OPRequest]):
     async with httpx.AsyncClient() as client:
         # Iterate through each JSON package
         for i, request in enumerate(requests):
-            # print("Sending request for row: ", i");
             # Make a request to the specific route /webpricer
             response = await client.post('http://localhost:80/webpricer', json=request.dict())
             response.raise_for_status()  # Optional: Raise an exception for non-2xx responses
