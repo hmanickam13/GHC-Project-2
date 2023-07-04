@@ -119,16 +119,19 @@ class BulkOptionPriceRequest(BaseModel):
     payloads: List[OptionPriceRequest]
 
 @app.post('/bulkwebpricer')
-async def calculate_option_prices_bulk(request: Request, payload: BulkOptionPriceRequest):
+async def calculate_option_prices_bulk(payload: BulkOptionPriceRequest):
     payloads = payload.payloads
     num_rows = len(payloads)
     option_values = []  # List to store the calculated option prices
 
     async with httpx.AsyncClient() as client:
         # Iterate through each JSON package
-        for i, payload in enumerate(payload):
+        for i, payload in enumerate(payloads):
+            # Extract the input parameters from the payload
+            # input_params =  payload.dict()
+
             # Make a request to the specific route /webpricer
-            response = await client.post('http://localhost:80/webpricer', json=request.dict())
+            response = await client.post('http://localhost:80/webpricer', json= payload.dict())
             response.raise_for_status()  # Optional: Raise an exception for non-2xx responses
 
             # Retrieve the option price from the response
@@ -144,6 +147,7 @@ async def calculate_option_prices_bulk(request: Request, payload: BulkOptionPric
 
     # Return the list of option prices as the final response
     return {"option_prices": option_values}
+
 
 
 
