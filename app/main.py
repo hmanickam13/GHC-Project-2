@@ -113,47 +113,40 @@ async def calculate_option_price(request: Request, payload: OptionPriceRequest):
     # SPOT: float
     # VOLATILITY: float
 
-class OPRequest(BaseModel):
+class BulkOptionPriceRequest(BaseModel):
 
-
-    CURRENCY_PAIR: str
-    MATURITY: str
-    STRIKE: str
-    NOTIONAL: str
-    EXOTIC_TYPE: str
-    TYPE: str
-    UPPER_BARRIER: str
-    LOWER_BARRIER: str
-    WINDOW_START_DATE: str
-    WINDOW_END_DATE: str
-    SPOT: str
-    VOLATILITY: str
+    # List of OptionPriceRequest objects
+    payloads: List[OptionPriceRequest]
 
 @app.post('/bulkwebpricer')
-async def calculate_option_prices_bulk(requests: List[OPRequest]):
-    num_rows = len(requests)
+async def calculate_option_prices_bulk(request: Request, payload: BulkOptionPriceRequest):
+    payloads = payload.payloads
+    num_rows = len(payloads)
     option_prices = []  # List to store the calculated option prices
 
     async with httpx.AsyncClient() as client:
         # Iterate through each JSON package
-        for i, request in enumerate(requests):
+        for i, payload in enumerate(payloads):
             # Make a request to the specific route /webpricer
-            response = await client.post('http://localhost:80/webpricer', json=request.dict())
+            response = await client.post('http://localhost:80/webpricer', json=payload.dict())
             response.raise_for_status()  # Optional: Raise an exception for non-2xx responses
 
             # Retrieve the option price from the response
             data = await response.json()
             option_price = data["option_price"]
 
-            # Append the option price to the list
-            option_prices.append(option_price)
+            # Store the option price along with the index
+            option_prices.append((i, option_price))
 
-            # Print the statement for the last option
-            if i == num_rows - 1:
-                print("All rows received")
+    # Sort the option prices based on the original order
+    option_prices.sort(key=lambda x: x[0])
+
+    # Extract the option prices without the index
+    option_prices = [price for _, price in option_prices]
 
     # Return the list of option prices as the final response
     return {"option_prices": option_prices}
+
 
 
 
