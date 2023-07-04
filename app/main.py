@@ -128,26 +128,35 @@ async def calculate_option_prices_bulk(payload: BulkOptionPriceRequest):
     async with httpx.AsyncClient() as client:
         tasks = []  # List to store the asynchronous tasks
 
-        # Iterate through each payload item
-        for i, payload in enumerate(payloads):
-            # Extract the input parameters from the payload
-            input_params = payload.dict()
+        try:
+            # Iterate through each payload item
+            for i, payload in enumerate(payloads):
+                # Extract the input parameters from the payload
+                input_params = payload.dict()
 
-            # Make a request to the specific route /webpricer
-            task = asyncio.create_task(client.post('http://localhost:80/webpricer', json=input_params))
-            tasks.append((i, task))  # Store the task along with the index
+                # Make a request to the specific route /webpricer
+                task = asyncio.create_task(client.post('http://localhost:80/webpricer', json=input_params))
+                tasks.append((i, task))  # Store the task along with the index
 
-        # Wait for all the tasks to complete
-        for i, task in tasks:
-            response = await task
-            response.raise_for_status()  # Optional: Raise an exception for non-2xx responses
+            # Wait for all the tasks to complete
+            for i, task in tasks:
+                response = await task
+                response.raise_for_status()  # Optional: Raise an exception for non-2xx responses
 
-            # Retrieve the option price from the response
-            data = await response.json()
-            option_price = data["option_price"]
+                # Retrieve the option price from the response
+                data = await response.json()
+                option_price = data["option_price"]
 
-            # Store the option price along with the index
-            option_values.append((i, option_price))
+                # Store the option price along with the index
+                option_values.append((i, option_price))
+
+        except Exception as e:
+            # Handle any exceptions and log the error
+            print(f"Error occurred: {e}")
+
+        finally:
+            # Ensure all tasks are completed before exiting
+            await asyncio.gather(*[task for _, task in tasks if not task.done()])
 
     # Sort the option prices based on the original order
     option_values.sort(key=lambda x: x[0])
@@ -157,6 +166,7 @@ async def calculate_option_prices_bulk(payload: BulkOptionPriceRequest):
 
     # Return the list of option prices as the final response
     return {"option_prices": option_prices}
+
 
 
 
