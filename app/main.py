@@ -352,8 +352,8 @@ async def calculate_option_prices_bulk(payload: BulkOptionPriceRequest):
                 response.raise_for_status()  # Optional: Raise an exception for non-2xx responses
 
                 # Retrieve the option price from the response
-                data = response.json()
-                option_price = data["option_price"]
+                option_price = response.json()
+                #  = data["option_price"]
 
                 # Store the option price along with the index
                 option_values.append((i, option_price))
