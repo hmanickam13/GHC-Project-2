@@ -151,10 +151,8 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
         try:
             if str(COMMON_FIELDS['MATURITY'][-1]).upper() in ['D', 'W', 'M', 'Y']:
                 # Maturity specified as '1m' or '3M'
-                maturity_type = MATURITY[-1].lower()  # Get the last character (M, W, D, Y)
-                maturity_unit = {'m': ql.Period.Months, 'w': ql.Period.Weeks, 'd': ql.Period.Days, 'y': ql.Period.Years}
-                maturity_value = int(MATURITY[:-1])  # Extract the numeric part
-                maturity_date = ql.Date(date.today()) + ql.Period(maturity_value, maturity_unit[maturity_type])
+                period = ql.Period.(f'{str(COMMON_FIELDS['MATURITY']}')
+                maturity_date = ql.Date(date.today() + period)
                 COMMON_FIELDS['MATURITY_DATE'] = maturity_date
             else:
                 errors.append("Invalid MATURITY format. Ex: 29Sep2023, 1m, 3M, 1y, 1w, 1d.")
@@ -367,14 +365,14 @@ async def calculate_option_prices_bulk(payload: BulkOptionPriceRequest):
             await asyncio.gather(*[task for _, task in tasks if not task.done()])
 
     # Sort the option prices based on the original order
-    option_values.sort(key=lambda x: x[0])
+    option_prices = option_values.sort(key=lambda x: x[0])
 
-    # Extract the option prices without the index
-    option_prices = [price for _, price in option_values]
+    # # Extract the option prices without the index
+    # option_prices = [price for _, price in option_values]
 
 
     # Return the list of option prices as the final response
-    return {"option_prices": option_prices}
+    return {option_prices}
 
 if __name__ == '__main__':
     uvicorn.run(app, host='0.0.0.0', port=80)
