@@ -274,7 +274,10 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
     elif COMMON_FIELDS['EXOTIC_TYPE'].upper() in ['KO_DB_BARRIER', 'KI_DB_BARRIER', 'KIKO', 'KOKI']:
         COMMON_FIELDS['PAYOFF'] = ql.PlainVanillaPayoff(COMMON_FIELDS['TYPE'], COMMON_FIELDS['STRIKE'])
         COMMON_FIELDS['OPTION'] = ql.DoubleBarrierOption(COMMON_FIELDS['BARRIER_TYPE'], COMMON_FIELDS['LOWER_BARRIER'], COMMON_FIELDS['UPPER_BARRIER'], COMMON_FIELDS['REBATE'], COMMON_FIELDS['PAYOFF'], COMMON_FIELDS['EXERCISE'])
+    else:
+        errors.append("Invalid EXOTIC_TYPE. Supported types: VANILLA, KO_BARRIER, KI_BARRIER, KO_DB_BARRIER, KI_DB_BARRIER, KIKO, KOKI.")
 
+    
     # Construct process
     TODAY = ql.Date().todaysDate()
     DOMESTIC_RF = ql.YieldTermStructureHandle(ql.FlatForward(TODAY, 0.05, ql.Actual365Fixed()))
@@ -293,21 +296,28 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
     
     # Calculate option price
     COMMON_FIELDS['OPTION'].setPricingEngine(COMMON_FIELDS['ENGINE'])
-    COMMON_FIELDS['OPTION_PRICE'] = COMMON_FIELDS['OPTION'].NPV()
-
+    
+    # Create a new dictionary to store the calculated fields
+    CALCULATED_FIELDS = {}
+    
+    CALCULATED_FIELDS['OPTION_PRICE'] = COMMON_FIELDS['OPTION'].NPV()
+    CALCULATED_FIELDS['DELTA'] = COMMON_FIELDS['OPTION'].delta()
+    CALCULATED_FIELDS['GAMMA'] = COMMON_FIELDS['OPTION'].gamma()
+    CALCULATED_FIELDS['VEGA'] = COMMON_FIELDS['OPTION'].vega()
+    # CALCULATED_FIELDS['THETA'] = COMMON_FIELDS['OPTION'].theta()
 
     # Print the option type
     print(f"\nEXOTIC_TYPE: {EXOTIC_TYPE}")
     # Print the processed fields
-    print("COMMON_FIELDS:")
-    print(COMMON_FIELDS)
+    print("CALCULATED_FIELDS:")
+    print(CALCULATED_FIELDS)
 
     # Call the function that performs calculations using the processed fields
     # OPTION_PRICE = calculate_option_price(processed_fields)
-    print(f"\nOPTION_PRICE: {COMMON_FIELDS['OPTION_PRICE']}")
+    print(f"\nOPTION_PRICE: {CALCULATED_FIELDS['OPTION_PRICE']}")
 
-    # Return the calculated option price
-    return {"COMMON_FIELDS": COMMON_FIELDS}
+    # Return common fields
+    return {CALCULATED_FIELDS}
 
 
 class BulkOptionPriceRequest(BaseModel):
