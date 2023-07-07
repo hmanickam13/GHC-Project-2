@@ -151,7 +151,7 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
         try:
             if str(COMMON_FIELDS['MATURITY'][-1]).upper() in ['D', 'W', 'M', 'Y']:
                 # Maturity specified as '1m' or '3M'
-                period = ql.Period.(f'{str(COMMON_FIELDS['MATURITY']}')
+                period = ql.Period(COMMON_FIELDS['MATURITY'])
                 maturity_date = ql.Date(date.today() + period)
                 COMMON_FIELDS['MATURITY_DATE'] = maturity_date
             else:
