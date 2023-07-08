@@ -134,7 +134,7 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
         print("Maturity specified in 10Sep2023 format.")
         try:    
             # Convert maturity date to datetime object
-            maturity_date = datetime.strptime(date_str, "%d%b%Y").date()
+            maturity_date = datetime.strptime(COMMON_FIELDS['MATURITY'], "%d%b%Y").date()
             if maturity_date > date.today():
                 # Convert maturity date to QuantLib Date object
                 maturity_date = ql.Date(maturity_date.day, maturity_date.month, maturity_date.year)
@@ -223,6 +223,7 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
     # Process volatility
     if COMMON_FIELDS['VOLATILITY'] == '':
         errors.append("VOLATILITY is empty.")
+        print("VOLATILITY is empty.")
     else:
         try:
             if isinstance(float(COMMON_FIELDS['VOLATILITY']), float) and float(COMMON_FIELDS['VOLATILITY']) <= 0:
@@ -361,7 +362,7 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
 
     # Call the function that performs calculations using the processed fields
     # OPTION_PRICE = calculate_option_price(processed_fields)
-    print(f"\nOPTION_PRICE: {CALCULATED_FIELDS['OPTION_PRICE']}")
+    # print(f"\nOPTION_PRICE: {CALCULATED_FIELDS['OPTION_PRICE']}")
 
     # Return common fields
     return CALCULATED_FIELDS
