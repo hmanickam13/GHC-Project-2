@@ -393,8 +393,8 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
 
     # Construct process
     # TODAY = ql.Date().todaysDate()
-    DOMESTIC_RF = ql.YieldTermStructureHandle(ql.FlatForward(0, OPTION_PARAM['DOMESTIC_CURRENCY'], DayCountRate))
-    FOREIGN_RF = ql.YieldTermStructureHandle(ql.FlatForward(0, OPTION_PARAM['FOREIGN_CURRENCY'], DayCountRate))
+    DOMESTIC_RF = ql.YieldTermStructureHandle(ql.FlatForward(0, calendar, OPTION_PARAM['DOMESTIC_CURRENCY'], DayCountRate))
+    FOREIGN_RF = ql.YieldTermStructureHandle(ql.FlatForward(0, calendar, OPTION_PARAM['FOREIGN_CURRENCY'], DayCountRate))
     VOLATILITY_TS = ql.BlackVolTermStructureHandle(ql.BlackConstantVol(0, calendar, OPTION_PARAM['VOLATILITY_HANDLE'], DayCountVolatility))
     
     # Processes
