@@ -377,11 +377,19 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
         print('Invalid EXOTIC_TYPE. Supported types: VANILLA, KO_BARRIER, KI_BARRIER, KO_DB_BARRIER, KI_DB_BARRIER, KIKO, KOKI.')
     
 
+
+
+#Settings such as calendar, evaluationdate; daycount
+# Calendar = ql.UnitedStates()
+# ql.Settings.instance().evaluationDate = EvaluationDate
+# DayCountRate = ql.Actual360()
+# DayCountVolatility = ql.ActualActual()
+
     #Settings such as calendar, evaluationdate; daycount
     # market = ql.TARGET()
     # Calendar = ql.UnitedStates()
-    calendar = ql.NullCalendar()
-    calendar = ql.UnitedStates(ql.UnitedStates.GovernmentBond)
+    # calendar = ql.NullCalendar()
+    calendar = ql.UnitedStates()
     ql.Settings.instance().evaluationDate = OPTION_PARAM['EVALUATION_DATE']
     DayCountRate = ql.Actual360()
     DayCountVolatility = ql.ActualActual()
