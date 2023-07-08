@@ -136,9 +136,12 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
             # Convert maturity date to datetime object
             maturity_date = datetime.strptime(COMMON_FIELDS['MATURITY'], "%d%b%Y").date()
             if maturity_date > date.today():
-                # Convert maturity date to QuantLib Date object
-                maturity_date = ql.Date(maturity_date.day, maturity_date.month, maturity_date.year)
-                print(f"MATURITY is greater than today. It is {maturity_date}.")
+                try:
+                    # Convert maturity date to QuantLib Date object
+                    maturity_date = ql.Date(maturity_date.day, maturity_date.month, maturity_date.year)
+                except RuntimeError:
+                    errors.append("Runtime error with MATURITY. Ex: 29Sep2023, 1m, 3M, 1y, 1w, 1d.")
+                    print(f"Runtime error with MATURITY. Ex: 29Sep2023, 1m, 3M, 1y, 1w, 1d.")
                 COMMON_FIELDS['MATURITY_DATE'] = maturity_date
                 # Set calculation date to today's date
                 COMMON_FIELDS['CALCULATION_DATE'] = ql.Date(date.today().day, date.today().month, date.today().year)
@@ -328,9 +331,12 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
     PROCESS = ql.BlackScholesMertonProcess(SPOT_HANDLE, FOREIGN_RF, DOMESTIC_RF, VOLATILITY_TS)
 
     # Construct engine
-    if COMMON_FIELDS['EXOTIC_TYPE'].upper() == 'VANILLA':
+    if COMMON_FIELDS['EXOTIC_TYPE'].upper() == 'VANILLA' and COMMON_FIELDS['EXERCISE'] == 'E':
         COMMON_FIELDS['ENGINE'] = ql.AnalyticEuropeanEngine(PROCESS)
         print("AnalyticEuropeanEngine")
+    elif COMMON_FIELDS['EXOTIC_TYPE'].upper() == 'VANILLA' and COMMON_FIELDS['EXERCISE'] == 'A':
+        COMMON_FIELDS['ENGINE'] = ql.AnalyticDigitalAmericanEngine(PROCESS)
+        print("AnalyticDigitalAmericanEngine")
     elif COMMON_FIELDS['EXOTIC_TYPE'].upper() in ['KO_BARRIER', 'KI_BARRIER']:
         COMMON_FIELDS['ENGINE'] = ql.AnalyticBarrierEngine(PROCESS)
         print("AnalyticBarrierEngine")
@@ -350,6 +356,7 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
     CALCULATED_FIELDS['VEGA'] = 0.0
 
     if str(COMMON_FIELDS['EXOTIC_TYPE']).upper() == 'VANILLA':
+        CALCULATED_FIELDS['PRICE_IN_PCT_FOREIGN_NOTIONAL'] = COMMON_FIELDS['OPTION_PRICE']*100*COMMON_FIELDS['NOTIONAL']/COMMON_FIELDS['SPOT']
         CALCULATED_FIELDS['DELTA'] = COMMON_FIELDS['OPTION'].delta()
         CALCULATED_FIELDS['GAMMA'] = COMMON_FIELDS['OPTION'].gamma()
         CALCULATED_FIELDS['VEGA'] = COMMON_FIELDS['OPTION'].vega()
