@@ -292,7 +292,7 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
 
     ## Process exercise type
     if OPTION_PARAM['EXERCISE'].upper() == 'E':
-        OPTION_PARAM['EXERCISE_Q'] = ql.EuropeanExercise(OPTION_PARAM['EXPIRYY_DATE'])
+        OPTION_PARAM['EXERCISE_Q'] = ql.EuropeanExercise(OPTION_PARAM['EXPIRY_DATE'])
         print("EuropeanExercise")
     elif OPTION_PARAM['EXERCISE'].upper() == 'A':
         OPTION_PARAM['EXERCISE_Q'] = ql.AmericanExercise(OPTION_PARAM['EVALUATION_DATE'], OPTION_PARAM['EXPIRY_DATE'])
