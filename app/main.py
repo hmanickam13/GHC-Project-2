@@ -391,9 +391,9 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
     
     # Processes
     # BS Process
-    # PROCESS = ql.BlackScholesMertonProcess(OPTION_PARAM['SPOT_HANDLE'], FOREIGN_RF, DOMESTIC_RF, VOLATILITY_TS)
+    PROCESS = ql.BlackScholesMertonProcess(OPTION_PARAM['SPOT_HANDLE'], FOREIGN_RF_RATE, DOMESTIC_RF_RATE, VOLATILITY_TS)
     # GK Process
-    PROCESS = ql.GarmanKohlagenProcess(OPTION_PARAM['SPOT_HANDLE'], FOREIGN_RF_RATE, DOMESTIC_RF_RATE, VOLATILITY_TS)
+    # PROCESS = ql.GarmanKohlagenProcess(OPTION_PARAM['SPOT_HANDLE'], FOREIGN_RF_RATE, DOMESTIC_RF_RATE, VOLATILITY_TS)
     # Vanna Volga Process ?
 
 
