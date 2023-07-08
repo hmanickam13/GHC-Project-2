@@ -261,16 +261,16 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
         errors.append("SPOT is empty.")
     else:
         try:
-            if isinstance(float(OPTION_PARAM['SPOT']), float) and float(OPTION_PARAM['SPOT']) >0:
+            isinstance(float(OPTION_PARAM['SPOT']), float):
+            if float(OPTION_PARAM['SPOT']) > 0:
                 SpotGlobal = ql.SimpleQuote(OPTION_PARAM['SPOT'])
-                SpotHandle = ql.QuoteHandle(SpotGlobal)
-                
-            elif isinstance(float(OPTION_PARAM['SPOT']), float) and float(OPTION_PARAM['SPOT']) <= 0:
+                OPTION_PARAM['SPOT_HANDLE'] = ql.QuoteHandle(SpotGlobal)
+            
+            elif float(OPTION_PARAM['SPOT']) <= 0:
                 errors.append("SPOT must be > 0.")
-            else:   
-                OPTION_PARAM['SPOT'] = float(OPTION_PARAM['SPOT'])
-        except ValueError:
+        except ValueError:   
             errors.append("SPOT is not a valid float")
+            
     print(f"Spot: {OPTION_PARAM['SPOT']}")   
             
     # Process volatility
@@ -278,16 +278,17 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
         errors.append("VOLATILITY is empty.")
     else:
         try:
-            if isinstance(float(OPTION_PARAM['VOLATILITY']), float) and float(OPTION_PARAM['VOLATILITY']) >0:
-                VolGlobal = ql.SimpleQuote(OPTION_PARAM['VOLATILITY'])
-                VolHandle = ql.QuoteHandle(VolGlobal)
-                
-            elif isinstance(float(OPTION_PARAM['VOLATILITY']), float) and float(OPTION_PARAM['VOLATILITY']) <= 0:
+            isinstance(float(OPTION_PARAM['VOLATILITY']), float):
+            if float(OPTION_PARAM['VOLATILITY']) > 0:
+                VolatilityGlobal = ql.SimpleQuote(OPTION_PARAM['VOLATILITY'])
+                OPTION_PARAM['VOLATILITY_HANDLE'] = ql.QuoteHandle(VolatilityGlobal)
+            
+            elif float(OPTION_PARAM['VOLATILITY']) <= 0:
                 errors.append("VOLATILITY must be > 0.")
-            else:   
-                OPTION_PARAM['VOLATILITY'] = float(OPTION_PARAM['VOLATILITY'])
         except ValueError:
             errors.append("VOLATILITY is not a valid float")
+
+    print(f"Volatility: {OPTION_PARAM['VOLATILITY']}")
 
     ## Process exercise type
     if OPTION_PARAM['EXERCISE'].upper() == 'E':
@@ -377,22 +378,23 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
 
     #Settings such as calendar, evaluationdate; daycount
     Calendar = ql.UnitedStates()
-    ql.Settings.instance().evaluationDate = EvaluationDate
+    ql.Settings.instance().evaluationDate = OPTION_PARAM['EVALUATION_DATE']
     DayCountRate = ql.Actual360()
     DayCountVolatility = ql.ActualActual()
-
-    #Create rate curves, vol surface and GK process
-    RiskFreeRateEUR = ql.YieldTermStructureHandle(ql.FlatForward(0, Calendar, EurRateHandle, DayCountRate))
-    RiskFreeRateUSD = ql.YieldTermStructureHandle(ql.FlatForward(0, Calendar, UsdRate, DayCountRate))
-    Volatility = ql.BlackVolTermStructureHandle(ql.BlackConstantVol(0, Calendar, VolHandle, DayCountVolatility))
-    GKProcess = ql.GarmanKohlagenProcess(SpotHandle, RiskFreeRateEUR, RiskFreeRateUSD, Volatility)
 
     # Construct process
     # TODAY = ql.Date().todaysDate()
     DOMESTIC_RF = ql.YieldTermStructureHandle(ql.FlatForward(0, OPTION_PARAM['DOMESTIC_CURRENCY'], DayCountRate))
     FOREIGN_RF = ql.YieldTermStructureHandle(ql.FlatForward(0, OPTION_PARAM['FOREIGN_CURRENCY'], DayCountRate))
-    VOLATILITY_TS = ql.BlackVolTermStructureHandle(ql.BlackConstantVol(0, Calendar, OPTION_PARAM['VOLATILITY'], DayCountVolatility))
-    PROCESS = ql.BlackScholesMertonProcess(OPTION_PARAM['SPOT'], FOREIGN_RF, DOMESTIC_RF, VOLATILITY_TS)
+    VOLATILITY_TS = ql.BlackVolTermStructureHandle(ql.BlackConstantVol(0, Calendar, OPTION_PARAM['VOLATILITY_HANDLE'], DayCountVolatility))
+    
+    # Processes
+    # BS Process
+    # PROCESS = ql.BlackScholesMertonProcess(OPTION_PARAM['SPOT_HANDLE'], FOREIGN_RF, DOMESTIC_RF, VOLATILITY_TS)
+    # GK Process
+    PROCESS = ql.GarmanKohlagenProcess(OPTION_PARAM['SPOT_HANDLE'], FOREIGN_RF, DOMESTIC_RF, VOLATILITY_TS)
+    # Vanna Volga Process ?
+
 
     # Construct engine
     if OPTION_PARAM['EXOTIC_TYPE'].upper() == 'VANILLA': # and OPTION_PARAM['EXERCISE'] == 'E':
