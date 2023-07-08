@@ -377,14 +377,6 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
         print('Invalid EXOTIC_TYPE. Supported types: VANILLA, KO_BARRIER, KI_BARRIER, KO_DB_BARRIER, KI_DB_BARRIER, KIKO, KOKI.')
     
 
-
-
-#Settings such as calendar, evaluationdate; daycount
-# Calendar = ql.UnitedStates()
-# ql.Settings.instance().evaluationDate = EvaluationDate
-# DayCountRate = ql.Actual360()
-# DayCountVolatility = ql.ActualActual()
-
     #Settings such as calendar, evaluationdate; daycount
     calendar = ql.UnitedStates(ql.UnitedStates.GovernmentBond)
     ql.Settings.instance().evaluationDate = OPTION_PARAM['EVALUATION_DATE']
@@ -393,15 +385,15 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
 
     # Construct process
     # TODAY = ql.Date().todaysDate()
-    DOMESTIC_RF = ql.YieldTermStructureHandle(ql.FlatForward(0, calendar, OPTION_PARAM['DOMESTIC_CURRENCY'], DayCountRate))
-    FOREIGN_RF = ql.YieldTermStructureHandle(ql.FlatForward(0, calendar, OPTION_PARAM['FOREIGN_CURRENCY'], DayCountRate))
+    DOMESTIC_RF_RATE = ql.YieldTermStructureHandle(ql.FlatForward(0, calendar, OPTION_PARAM['DOMESTIC_CURRENCY_RF_RATE'], DayCountRate))
+    FOREIGN_RF_RATE = ql.YieldTermStructureHandle(ql.FlatForward(0, calendar, OPTION_PARAM['FOREIGN_CURRENCY_RF_RATE'], DayCountRate))
     VOLATILITY_TS = ql.BlackVolTermStructureHandle(ql.BlackConstantVol(0, calendar, OPTION_PARAM['VOLATILITY_HANDLE'], DayCountVolatility))
     
     # Processes
     # BS Process
     # PROCESS = ql.BlackScholesMertonProcess(OPTION_PARAM['SPOT_HANDLE'], FOREIGN_RF, DOMESTIC_RF, VOLATILITY_TS)
     # GK Process
-    PROCESS = ql.GarmanKohlagenProcess(OPTION_PARAM['SPOT_HANDLE'], FOREIGN_RF, DOMESTIC_RF, VOLATILITY_TS)
+    PROCESS = ql.GarmanKohlagenProcess(OPTION_PARAM['SPOT_HANDLE'], FOREIGN_RF_RATE, DOMESTIC_RF_RATE, VOLATILITY_TS)
     # Vanna Volga Process ?
 
 
