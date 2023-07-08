@@ -175,7 +175,7 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
                     # Set calculation date to today's date
                     OPTION_PARAM['EVALUATION_DATE'] = ql.Date(date.today().day, date.today().month, date.today().year)
                     OPTION_PARAM['SETTLEMENT_DATE'] = OPTION_PARAM['EVALUATION_DATE'] + 2
-                    print(f"Evaluation date: {OPTION_PARAM['CALCULATION_DATE']}.")
+                    print(f"Evaluation date: {OPTION_PARAM['EVALUATION_DATE']}.")
                     print(f"Settlement date: {OPTION_PARAM['SETTLEMENT_DATE']}.")
                     NumberOfDaysBetween = OPTION_PARAM['EXPIRY_DATE'] - OPTION_PARAM['EVALUATION_DATE']
                     print(f"Number of days between expiry and evaluation date: {NumberOfDaysBetween}.")
@@ -218,7 +218,7 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
                 # Set calculation date to today's date
                 OPTION_PARAM['EVALUATION_DATE'] = ql.Date(date.today().day, date.today().month, date.today().year)
                 OPTION_PARAM['SETTLEMENT_DATE'] = OPTION_PARAM['EVALUATION_DATE'] + 2
-                print(f"Evaluation date: {OPTION_PARAM['CALCULATION_DATE']}.")
+                print(f"Evaluation date: {OPTION_PARAM['EVALUATION_DATE']}.")
                 print(f"Settlement date: {OPTION_PARAM['SETTLEMENT_DATE']}.")
                 NumberOfDaysBetween = OPTION_PARAM['EXPIRY_DATE'] - OPTION_PARAM['EVALUATION_DATE']
                 print(f"Number of days between expiry and evaluation date: {NumberOfDaysBetween}.")
@@ -307,12 +307,12 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
         OPTION_PARAM['TYPE'] = ql.Option.Call
         print("Call")
         # Set evaluation date
-        ql.Settings.instance().evaluationDate = OPTION_PARAM['CALCULATION_DATE']
+        ql.Settings.instance().evaluationDate = OPTION_PARAM['EVALUATION_DATE']
     elif str(OPTION_PARAM['TYPE']).upper() == 'PUT':
         OPTION_PARAM['TYPE'] = ql.Option.Put
         print("Put")
         # Set evaluation date
-        ql.Settings.instance().evaluationDate = OPTION_PARAM['CALCULATION_DATE']
+        ql.Settings.instance().evaluationDate = OPTION_PARAM['EVALUATION_DATE']
     else:
         errors.append("Invalid TYPE. Ex: CALL, PUT.")
         print("Invalid TYPE. Ex: CALL, PUT.")
