@@ -206,6 +206,9 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
                     period = ql.Period(period, ql.Months)
                 elif time_unit == 'Y':
                     period = ql.Period(period, ql.Years)
+                # Convert maturity date to datetime object
+                maturity_date = OPTION_PARAM['EVALUATION_DATE'] + period
+                
                 # Convert maturity date to QuantLib Date object
                 OPTION_PARAM['EXPIRY_DATE'] = ql.Date(maturity_date.day, maturity_date.month, maturity_date.year)
                 OPTION_PARAM['DELIVERY_DATE'] = OPTION_PARAM['EXPIRY_DATE'] + 2
