@@ -261,13 +261,12 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
         errors.append("SPOT is empty.")
     else:
         try:
-            isinstance(float(OPTION_PARAM['SPOT']), float)
-            if float(OPTION_PARAM['SPOT']) > 0:
-                SpotGlobal = ql.SimpleQuote(OPTION_PARAM['SPOT'])
-                OPTION_PARAM['SPOT_HANDLE'] = ql.QuoteHandle(SpotGlobal)
-            
-            elif float(OPTION_PARAM['SPOT']) <= 0:
-                errors.append("SPOT must be > 0.")
+            if isinstance(float(OPTION_PARAM['SPOT']), float):
+                if float(OPTION_PARAM['SPOT']) > 0:
+                    SpotGlobal = ql.SimpleQuote(OPTION_PARAM['SPOT'])
+                    OPTION_PARAM['SPOT_HANDLE'] = ql.QuoteHandle(SpotGlobal)
+                elif float(OPTION_PARAM['SPOT']) <= 0:
+                    errors.append("SPOT must be > 0.")
         except ValueError:   
             errors.append("SPOT is not a valid float")
             
@@ -278,13 +277,12 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
         errors.append("VOLATILITY is empty.")
     else:
         try:
-            isinstance(float(OPTION_PARAM['VOLATILITY']), float):
-            if float(OPTION_PARAM['VOLATILITY']) > 0:
-                VolatilityGlobal = ql.SimpleQuote(OPTION_PARAM['VOLATILITY'])
-                OPTION_PARAM['VOLATILITY_HANDLE'] = ql.QuoteHandle(VolatilityGlobal)
-            
-            elif float(OPTION_PARAM['VOLATILITY']) <= 0:
-                errors.append("VOLATILITY must be > 0.")
+            if isinstance(float(OPTION_PARAM['VOLATILITY']), float):
+                if float(OPTION_PARAM['VOLATILITY']) > 0:
+                    VolatilityGlobal = ql.SimpleQuote(OPTION_PARAM['VOLATILITY'])
+                    OPTION_PARAM['VOLATILITY_HANDLE'] = ql.QuoteHandle(VolatilityGlobal)
+                elif float(OPTION_PARAM['VOLATILITY']) <= 0:
+                    errors.append("VOLATILITY must be > 0.")
         except ValueError:
             errors.append("VOLATILITY is not a valid float")
 
