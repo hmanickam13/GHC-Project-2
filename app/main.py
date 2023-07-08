@@ -334,9 +334,9 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
     if COMMON_FIELDS['EXOTIC_TYPE'].upper() == 'VANILLA': # and COMMON_FIELDS['EXERCISE'] == 'E':
         COMMON_FIELDS['ENGINE'] = ql.AnalyticEuropeanEngine(PROCESS)
         print("AnalyticEuropeanEngine")
-    elif COMMON_FIELDS['EXOTIC_TYPE'].upper() == 'VANILLA' and COMMON_FIELDS['EXERCISE'] == 'A':
-        COMMON_FIELDS['ENGINE'] = ql.AnalyticDigitalAmericanEngine(PROCESS)
-        print("AnalyticDigitalAmericanEngine")
+    # elif COMMON_FIELDS['EXOTIC_TYPE'].upper() == 'VANILLA' and COMMON_FIELDS['EXERCISE'] == 'A':
+    #     COMMON_FIELDS['ENGINE'] = ql.AnalyticDigitalAmericanEngine(PROCESS)
+    #     print("AnalyticDigitalAmericanEngine")
     elif COMMON_FIELDS['EXOTIC_TYPE'].upper() in ['KO_BARRIER', 'KI_BARRIER']:
         COMMON_FIELDS['ENGINE'] = ql.AnalyticBarrierEngine(PROCESS)
         print("AnalyticBarrierEngine")
@@ -356,7 +356,7 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
     CALCULATED_FIELDS['VEGA'] = 0.0
 
     if str(COMMON_FIELDS['EXOTIC_TYPE']).upper() == 'VANILLA':
-        CALCULATED_FIELDS['PRICE_IN_PCT_FOREIGN_NOTIONAL'] = COMMON_FIELDS['OPTION_PRICE']*100*COMMON_FIELDS['NOTIONAL']/COMMON_FIELDS['SPOT']
+        CALCULATED_FIELDS['PRICE_IN_PCT_FOREIGN_NOTIONAL'] = CALCULATED_FIELDS['OPTION_PRICE']*100*COMMON_FIELDS['NOTIONAL']/COMMON_FIELDS['SPOT']
         CALCULATED_FIELDS['DELTA'] = COMMON_FIELDS['OPTION'].delta()
         CALCULATED_FIELDS['GAMMA'] = COMMON_FIELDS['OPTION'].gamma()
         CALCULATED_FIELDS['VEGA'] = COMMON_FIELDS['OPTION'].vega()
