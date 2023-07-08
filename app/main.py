@@ -261,7 +261,7 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
         errors.append("SPOT is empty.")
     else:
         try:
-            isinstance(float(OPTION_PARAM['SPOT']), float):
+            isinstance(float(OPTION_PARAM['SPOT']), float)
             if float(OPTION_PARAM['SPOT']) > 0:
                 SpotGlobal = ql.SimpleQuote(OPTION_PARAM['SPOT'])
                 OPTION_PARAM['SPOT_HANDLE'] = ql.QuoteHandle(SpotGlobal)
