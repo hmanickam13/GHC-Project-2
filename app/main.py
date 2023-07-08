@@ -239,10 +239,10 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
 
     ## Process exercise type
     if COMMON_FIELDS['EXERCISE'].upper() == 'E':
-        COMMON_FIELDS['EXERCISE'] = ql.EuropeanExercise(COMMON_FIELDS['MATURITY_DATE'])
+        COMMON_FIELDS['EXERCISE_Q'] = ql.EuropeanExercise(COMMON_FIELDS['MATURITY_DATE'])
         print("EuropeanExercise")
     elif COMMON_FIELDS['EXERCISE'].upper() == 'A':
-        COMMON_FIELDS['EXERCISE'] = ql.AmericanExercise(ql.Date().todaysDate(), COMMON_FIELDS['MATURITY_DATE'])
+        COMMON_FIELDS['EXERCISE_Q'] = ql.AmericanExercise(ql.Date().todaysDate(), COMMON_FIELDS['MATURITY_DATE'])
         print("AmericanExercise")
     else:
         errors.append("Invalid EXERCISE. Ex: E, A.")
@@ -308,15 +308,15 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
     # Construct payoff & option
     if COMMON_FIELDS['EXOTIC_TYPE'].upper() == 'VANILLA':
         COMMON_FIELDS['PAYOFF'] = ql.PlainVanillaPayoff(COMMON_FIELDS['TYPE'], COMMON_FIELDS['STRIKE'])
-        COMMON_FIELDS['OPTION'] = ql.VanillaOption(COMMON_FIELDS['PAYOFF'], COMMON_FIELDS['EXERCISE'])
+        COMMON_FIELDS['OPTION'] = ql.VanillaOption(COMMON_FIELDS['PAYOFF'], COMMON_FIELDS['EXERCISE_Q'])
         print("VanillaOption")
     elif COMMON_FIELDS['EXOTIC_TYPE'].upper() in ['KO_BARRIER', 'KI_BARRIER']:
         COMMON_FIELDS['PAYOFF'] = ql.PlainVanillaPayoff(COMMON_FIELDS['TYPE'], COMMON_FIELDS['STRIKE'])
-        COMMON_FIELDS['OPTION'] = ql.BarrierOption(COMMON_FIELDS['BARRIER_TYPE'], COMMON_FIELDS['UPPER_BARRIER'], COMMON_FIELDS['REBATE'], COMMON_FIELDS['PAYOFF'], COMMON_FIELDS['EXERCISE'])
+        COMMON_FIELDS['OPTION'] = ql.BarrierOption(COMMON_FIELDS['BARRIER_TYPE'], COMMON_FIELDS['UPPER_BARRIER'], COMMON_FIELDS['REBATE'], COMMON_FIELDS['PAYOFF'], COMMON_FIELDS['EXERCISE_Q'])
         print("BarrierOption")
     elif COMMON_FIELDS['EXOTIC_TYPE'].upper() in ['KO_DB_BARRIER', 'KI_DB_BARRIER', 'KIKO', 'KOKI']:
         COMMON_FIELDS['PAYOFF'] = ql.PlainVanillaPayoff(COMMON_FIELDS['TYPE'], COMMON_FIELDS['STRIKE'])
-        COMMON_FIELDS['OPTION'] = ql.DoubleBarrierOption(COMMON_FIELDS['BARRIER_TYPE'], COMMON_FIELDS['LOWER_BARRIER'], COMMON_FIELDS['UPPER_BARRIER'], COMMON_FIELDS['REBATE'], COMMON_FIELDS['PAYOFF'], COMMON_FIELDS['EXERCISE'])
+        COMMON_FIELDS['OPTION'] = ql.DoubleBarrierOption(COMMON_FIELDS['BARRIER_TYPE'], COMMON_FIELDS['LOWER_BARRIER'], COMMON_FIELDS['UPPER_BARRIER'], COMMON_FIELDS['REBATE'], COMMON_FIELDS['PAYOFF'], COMMON_FIELDS['EXERCISE_Q'])
         print("DoubleBarrierOption")
     else:
         errors.append("Invalid EXOTIC_TYPE. Supported types: VANILLA, KO_BARRIER, KI_BARRIER, KO_DB_BARRIER, KI_DB_BARRIER, KIKO, KOKI.")
