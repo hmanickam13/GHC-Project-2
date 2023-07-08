@@ -247,15 +247,17 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
         errors.append("NOTIONAL is empty.")
     else:
         try:
-            if isinstance(float(OPTION_PARAM['NOTIONAL']), float) and float(OPTION_PARAM['NOTIONAL']) <= 0:
-                NotionalGlobal = ql.SimpleQuote(OPTION_PARAM['NOTIONAL'])
-                NotionalHandle = ql.QuoteHandle(NotionalGlobal)
-            else:
-                OPTION_PARAM['NOTIONAL'] = float(OPTION_PARAM['NOTIONAL'])
+            if isinstance(float(OPTION_PARAM['NOTIONAL']), float):
+                if float(OPTION_PARAM['NOTIONAL']) > 0:
+                    NotionalGlobal = ql.SimpleQuote(float(OPTION_PARAM['NOTIONAL']), float)
+                    OPTION_PARAM['NOTIONAL_HANDLE'] = ql.QuoteHandle(NotionalGlobal)
+                elif float(OPTION_PARAM['NOTIONAL']) <= 0:
+                    errors.append("NOTIONAL must be > 0.")
         except ValueError:
             errors.append("NOTIONAL is not a valid float")
-    print(f"Notional: {OPTION_PARAM['NOTIONAL']}")
 
+    print(f"Notional: {OPTION_PARAM['NOTIONAL']}")
+    
     # Process spot    
     if OPTION_PARAM['SPOT'] == '':
         errors.append("SPOT is empty.")
@@ -263,7 +265,7 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
         try:
             if isinstance(float(OPTION_PARAM['SPOT']), float):
                 if float(OPTION_PARAM['SPOT']) > 0:
-                    SpotGlobal = ql.SimpleQuote(OPTION_PARAM['SPOT'])
+                    SpotGlobal = ql.SimpleQuote(float(OPTION_PARAM['SPOT']), float)
                     OPTION_PARAM['SPOT_HANDLE'] = ql.QuoteHandle(SpotGlobal)
                 elif float(OPTION_PARAM['SPOT']) <= 0:
                     errors.append("SPOT must be > 0.")
@@ -279,7 +281,7 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
         try:
             if isinstance(float(OPTION_PARAM['VOLATILITY']), float):
                 if float(OPTION_PARAM['VOLATILITY']) > 0:
-                    VolatilityGlobal = ql.SimpleQuote(OPTION_PARAM['VOLATILITY'])
+                    VolatilityGlobal = ql.SimpleQuote(float(OPTION_PARAM['VOLATILITY']), float)
                     OPTION_PARAM['VOLATILITY_HANDLE'] = ql.QuoteHandle(VolatilityGlobal)
                 elif float(OPTION_PARAM['VOLATILITY']) <= 0:
                     errors.append("VOLATILITY must be > 0.")
