@@ -386,13 +386,10 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
 # DayCountVolatility = ql.ActualActual()
 
     #Settings such as calendar, evaluationdate; daycount
-    # market = ql.TARGET()
-    # Calendar = ql.UnitedStates()
-    # calendar = ql.NullCalendar()
-    calendar = ql.UnitedStates()
+    calendar = ql.UnitedStates(ql.UnitedStates.GovernmentBond)
     ql.Settings.instance().evaluationDate = OPTION_PARAM['EVALUATION_DATE']
     DayCountRate = ql.Actual360()
-    DayCountVolatility = ql.ActualActual()
+    DayCountVolatility = ql.ActualActual(ql.ActualActual.ISDA)
 
     # Construct process
     # TODAY = ql.Date().todaysDate()
