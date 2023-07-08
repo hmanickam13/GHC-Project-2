@@ -331,7 +331,7 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
     PROCESS = ql.BlackScholesMertonProcess(SPOT_HANDLE, FOREIGN_RF, DOMESTIC_RF, VOLATILITY_TS)
 
     # Construct engine
-    if COMMON_FIELDS['EXOTIC_TYPE'].upper() == 'VANILLA' and COMMON_FIELDS['EXERCISE'] == 'E':
+    if COMMON_FIELDS['EXOTIC_TYPE'].upper() == 'VANILLA': # and COMMON_FIELDS['EXERCISE'] == 'E':
         COMMON_FIELDS['ENGINE'] = ql.AnalyticEuropeanEngine(PROCESS)
         print("AnalyticEuropeanEngine")
     elif COMMON_FIELDS['EXOTIC_TYPE'].upper() == 'VANILLA' and COMMON_FIELDS['EXERCISE'] == 'A':
