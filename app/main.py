@@ -364,7 +364,7 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
     print(f"\nOPTION_PRICE: {CALCULATED_FIELDS['OPTION_PRICE']}")
 
     # Return common fields
-    return {CALCULATED_FIELDS}
+    return CALCULATED_FIELDS
 
 
 class BulkOptionPriceRequest(BaseModel):
