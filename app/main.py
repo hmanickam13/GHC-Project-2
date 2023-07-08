@@ -249,7 +249,7 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
         try:
             if isinstance(float(OPTION_PARAM['NOTIONAL']), float):
                 if float(OPTION_PARAM['NOTIONAL']) > 0:
-                    NotionalGlobal = ql.SimpleQuote(float(OPTION_PARAM['NOTIONAL']), float)
+                    NotionalGlobal = ql.SimpleQuote(float(OPTION_PARAM['NOTIONAL']))
                     OPTION_PARAM['NOTIONAL_HANDLE'] = ql.QuoteHandle(NotionalGlobal)
                 elif float(OPTION_PARAM['NOTIONAL']) <= 0:
                     errors.append("NOTIONAL must be > 0.")
@@ -257,7 +257,7 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
             errors.append("NOTIONAL is not a valid float")
 
     print(f"Notional: {OPTION_PARAM['NOTIONAL']}")
-    
+
     # Process spot    
     if OPTION_PARAM['SPOT'] == '':
         errors.append("SPOT is empty.")
@@ -265,7 +265,7 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
         try:
             if isinstance(float(OPTION_PARAM['SPOT']), float):
                 if float(OPTION_PARAM['SPOT']) > 0:
-                    SpotGlobal = ql.SimpleQuote(float(OPTION_PARAM['SPOT']), float)
+                    SpotGlobal = ql.SimpleQuote(float(OPTION_PARAM['SPOT']))
                     OPTION_PARAM['SPOT_HANDLE'] = ql.QuoteHandle(SpotGlobal)
                 elif float(OPTION_PARAM['SPOT']) <= 0:
                     errors.append("SPOT must be > 0.")
@@ -281,7 +281,7 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
         try:
             if isinstance(float(OPTION_PARAM['VOLATILITY']), float):
                 if float(OPTION_PARAM['VOLATILITY']) > 0:
-                    VolatilityGlobal = ql.SimpleQuote(float(OPTION_PARAM['VOLATILITY']), float)
+                    VolatilityGlobal = ql.SimpleQuote(float(OPTION_PARAM['VOLATILITY']))
                     OPTION_PARAM['VOLATILITY_HANDLE'] = ql.QuoteHandle(VolatilityGlobal)
                 elif float(OPTION_PARAM['VOLATILITY']) <= 0:
                     errors.append("VOLATILITY must be > 0.")
