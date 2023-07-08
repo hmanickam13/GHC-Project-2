@@ -228,7 +228,8 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
             errors.append("3 Invalid MATURITY format. Ex: 29Sep2023, 1m, 3M, 1y, 1w, 1d.")
     else:
         errors.append("4 Invalid MATURITY format. Ex: 29Sep2023, 1m, 3M, 1y, 1w, 1d.")
-        
+    
+    print(OPTION_PARAM['EXPIRY_DATE'])
     # Process strike
     if OPTION_PARAM['STRIKE'] == '':
         errors.append("STRIKE is empty")
