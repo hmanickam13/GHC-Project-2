@@ -129,97 +129,135 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
     else:
         errors.append("Invalid CURRENCY_PAIR. Ex: USDEUR")
     
-    # Check if maturity date is valid
-    if len(COMMON_FIELDS['MATURITY']) == 10:
-        try:
+        # Check if maturity date is valid
+    if len(COMMON_FIELDS['MATURITY']) == 9:
+        print("Maturity specified in 10Sep2023 format.")
+        try:    
             # Convert maturity date to datetime object
-            maturity_date = datetime.datetime.strptime(COMMON_FIELDS['MATURITY'], '%Y-%m-%d')
+            maturity_date = datetime.strptime(date_str, "%d%b%Y").date()
+            if maturity_date > date.today():
+                # Convert maturity date to QuantLib Date object
+                maturity_date = ql.Date(maturity_date.day, maturity_date.month, maturity_date.year)
+                print(f"MATURITY is greater than today. It is {maturity_date}.")
+                COMMON_FIELDS['MATURITY_DATE'] = maturity_date
+                # Set calculation date to today's date
+                COMMON_FIELDS['CALCULATION_DATE'] = ql.Date(date.today().day, date.today().month, date.today().year)
+                print(f"Calculation date is today {COMMON_FIELDS['CALCULATION_DATE']}.")
 
             # Check if maturity date is before today's date
-            if maturity_date.date() < datetime.date.today():
-                errors.append("MATURITY is before today's date")
-            else:
-                # Convert maturity date to QuantLib Date object
-                maturity_day = int(COMMON_FIELDS['MATURITY'][8:10])
-                maturity_month = int(COMMON_FIELDS['MATURITY'][5:7])
-                maturity_year = int(COMMON_FIELDS['MATURITY'][0:4])
-                maturity_date = ql.Date(maturity_day, maturity_month, maturity_year)
-                COMMON_FIELDS['MATURITY_DATE'] = maturity_date
+            elif maturity_date < date.today():
+                print("MATURITY is before today's date.")
+                errors.append("MATURITY is before today's date.")
         except ValueError:
-            errors.append("Invalid MATURITY format. Ex: 29Sep2023, 1m, 3M, 1y, 1w, 1d.")
+            errors.append("1 Invalid MATURITY format. Ex: 29Sep2023, 1m, 3M, 1y, 1w, 1d.")
     elif len(COMMON_FIELDS['MATURITY']) == 2 or len(COMMON_FIELDS['MATURITY']) == 3:
+        print("Maturity specified as '1m' or '3Y'")
         try:
             if str(COMMON_FIELDS['MATURITY'][-1]).upper() in ['D', 'W', 'M', 'Y']:
                 # Maturity specified as '1m' or '3M'
-                period = ql.Period(COMMON_FIELDS['MATURITY'])
-                maturity_date = ql.Date(date.today() + period)
+                # Extract the number
+                period = int(COMMON_FIELDS['MATURITY'][0:-1])
+                #Extract the time unit
+                time_unit = str(COMMON_FIELDS['MATURITY'][-1]).upper()
+                if time_unit == 'D':
+                    period = ql.Period(period, ql.Days)
+                elif time_unit == 'W':
+                    period = ql.Period(period, ql.Weeks)
+                elif time_unit == 'M':
+                    period = ql.Period(period, ql.Months)
+                elif time_unit == 'Y':
+                    period = ql.Period(period, ql.Years)
+                # Calculate maturity date
+                maturity_date = ql.Date(date.today().day, date.today().month, date.today().year) + period
+                print(f"maturity_date: {maturity_date}")
                 COMMON_FIELDS['MATURITY_DATE'] = maturity_date
+                # Set calculation date to today's date
+                COMMON_FIELDS['CALCULATION_DATE'] = ql.Date(date.today().day, date.today().month, date.today().year)
+                print(f"Calculation date is today {COMMON_FIELDS['CALCULATION_DATE']}.")
             else:
-                errors.append("Invalid MATURITY format. Ex: 29Sep2023, 1m, 3M, 1y, 1w, 1d.")
+                errors.append("2 Invalid MATURITY format. Ex: 29Sep2023, 1m, 3M, 1y, 1w, 1d.")
         except KeyError:
-            errors.append("Invalid MATURITY format. Ex: 29Sep2023, 1m, 3M, 1y, 1w, 1d.")
+            errors.append("3 Invalid MATURITY format. Ex: 29Sep2023, 1m, 3M, 1y, 1w, 1d.")
     else:
-        errors.append("Invalid MATURITY format. Ex: 29Sep2023, 1m, 3M, 1y, 1w, 1d.")
-
+        errors.append("4 Invalid MATURITY format. Ex: 29Sep2023, 1m, 3M, 1y, 1w, 1d.")
+        
     # Process strike
     if COMMON_FIELDS['STRIKE'] == '':
         errors.append("STRIKE is empty")
     else:
         try:
-            COMMON_FIELDS['STRIKE'] = float(COMMON_FIELDS['STRIKE'])
+            if isinstance(float(COMMON_FIELDS['STRIKE']), float) and float(COMMON_FIELDS['STRIKE']) <= 0:
+                errors.append("STRIKE must be > 0.")
+            else:
+                COMMON_FIELDS['STRIKE'] = float(COMMON_FIELDS['STRIKE'])
         except ValueError:
             errors.append("Invalid STRIKE. Must be a float.")
-        if COMMON_FIELDS['STRIKE'] <= 0:
-            errors.append("STRIKE must be > 0.")
+    print(f"Strike: {COMMON_FIELDS['STRIKE']}")    
 
     # Process notional
     if COMMON_FIELDS['NOTIONAL'] == '':
         errors.append("NOTIONAL is empty")
     else:
         try:
-            COMMON_FIELDS['NOTIONAL'] = float(COMMON_FIELDS['NOTIONAL'])
+            if isinstance(float(COMMON_FIELDS['NOTIONAL']), float) and float(COMMON_FIELDS['NOTIONAL']) <= 0:
+                errors.append("NOTIONAL must be > 0.")
+            else:
+                COMMON_FIELDS['NOTIONAL'] = float(COMMON_FIELDS['NOTIONAL'])
         except ValueError:
             errors.append("Invalid NOTIONAL. Must be a float.")
-        if COMMON_FIELDS['NOTIONAL'] <= 0:
-            errors.append("NOTIONAL must be > 0.")
+    print(f"Notional: {COMMON_FIELDS['NOTIONAL']}") 
 
     # Process spot    
     if COMMON_FIELDS['SPOT'] == '':
         errors.append("SPOT is empty.")
     else:
         try:
-            COMMON_FIELDS['SPOT'] = float(COMMON_FIELDS['SPOT'])    
+            if isinstance(float(COMMON_FIELDS['SPOT']), float) and float(COMMON_FIELDS['SPOT']) <=0:
+                errors.append("SPOT is not > 0.")
+            else:
+                COMMON_FIELDS['SPOT'] = float(COMMON_FIELDS['SPOT'])
         except ValueError:
             errors.append("SPOT is not a valid float")
-        if COMMON_FIELDS['SPOT'] <=0:
-            errors.append("SPOT is not > 0.")
+    print(f"Spot: {COMMON_FIELDS['SPOT']}")   
             
     # Process volatility
     if COMMON_FIELDS['VOLATILITY'] == '':
-        print("VOLATILITY is empty.")
+        errors.append("VOLATILITY is empty.")
     else:
         try:
-            COMMON_FIELDS['VOLATILITY'] = float(COMMON_FIELDS['VOLATILITY'])
+            if isinstance(float(COMMON_FIELDS['VOLATILITY']), float) and float(COMMON_FIELDS['VOLATILITY']) <= 0:
+                errors.append("VOLATILITY must be > 0.")
+            else:
+                COMMON_FIELDS['VOLATILITY'] = float(COMMON_FIELDS['VOLATILITY'])
         except ValueError:
             errors.append("VOLATILITY is not a valid float.")
-        if VOLATILITY <=0:
-            errors.append("VOLATILITY is not > 0.")
+    print(f"Volatility: {COMMON_FIELDS['VOLATILITY']}")
 
-    # Process exercise type
-    if COMMON_FIELDS['EXERCISE'].upper() in ['E']:
-        COMMON_FIELDS['EXERCISE'] = ql.EuropeanExercise()
-    elif COMMON_FIELDS['EXERCISE'].upper() in ['A']:
-        COMMON_FIELDS['EXERCISE'] = ql.AmericanExercise(ql.Date().todaysDate(), COMMON_FIELDS['MATURITY'])
+    ## Process exercise type
+    if COMMON_FIELDS['EXERCISE'].upper() == 'E':
+        COMMON_FIELDS['EXERCISE'] = ql.EuropeanExercise(COMMON_FIELDS['MATURITY_DATE'])
+        print("EuropeanExercise")
+    elif COMMON_FIELDS['EXERCISE'].upper() == 'A':
+        COMMON_FIELDS['EXERCISE'] = ql.AmericanExercise(ql.Date().todaysDate(), COMMON_FIELDS['MATURITY_DATE'])
+        print("AmericanExercise")
     else:
         errors.append("Invalid EXERCISE. Ex: E, A.")
+        print("Invalid EXERCISE. Ex: E, A.")
 
     # Process option type
-    if COMMON_FIELDS['TYPE'].upper() == 'CALL':
-        COMMON_FIELDS['TYPE'] = ql.Option.Call 
-    elif COMMON_FIELDS['TYPE'].upper() == 'PUT':
+    if str(COMMON_FIELDS['TYPE']).upper() == 'CALL':
+        COMMON_FIELDS['TYPE'] = ql.Option.Call
+        print("Call")
+        # Set evaluation date
+        ql.Settings.instance().evaluationDate = COMMON_FIELDS['CALCULATION_DATE']
+    elif str(COMMON_FIELDS['TYPE']).upper() == 'PUT':
         COMMON_FIELDS['TYPE'] = ql.Option.Put
+        print("Put")
+        # Set evaluation date
+        ql.Settings.instance().evaluationDate = COMMON_FIELDS['CALCULATION_DATE']
     else:
         errors.append("Invalid TYPE. Ex: CALL, PUT.")
+        print("Invalid TYPE. Ex: CALL, PUT.")
 
     # Barrier options
     if COMMON_FIELDS['EXOTIC_TYPE'].upper() in ['KO_BARRIER', 'KI_BARRIER']:
@@ -255,6 +293,7 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
             COMMON_FIELDS['BARRIER_TYPE'] = ql.DoubleBarrier.KIKO
         elif COMMON_FIELDS['EXOTIC_TYPE'].upper() == 'KOKI':
             COMMON_FIELDS['BARRIER_TYPE'] = ql.DoubleBarrier.KOKI
+        print('DoubleBarrier options')
 
     # Asian options
     # elif COMMON_FIELDS['EXOTIC_TYPE'].upper() in ['ASIAN']:
@@ -266,43 +305,53 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
     if COMMON_FIELDS['EXOTIC_TYPE'].upper() == 'VANILLA':
         COMMON_FIELDS['PAYOFF'] = ql.PlainVanillaPayoff(COMMON_FIELDS['TYPE'], COMMON_FIELDS['STRIKE'])
         COMMON_FIELDS['OPTION'] = ql.VanillaOption(COMMON_FIELDS['PAYOFF'], COMMON_FIELDS['EXERCISE'])
+        print("VanillaOption")
     elif COMMON_FIELDS['EXOTIC_TYPE'].upper() in ['KO_BARRIER', 'KI_BARRIER']:
         COMMON_FIELDS['PAYOFF'] = ql.PlainVanillaPayoff(COMMON_FIELDS['TYPE'], COMMON_FIELDS['STRIKE'])
         COMMON_FIELDS['OPTION'] = ql.BarrierOption(COMMON_FIELDS['BARRIER_TYPE'], COMMON_FIELDS['UPPER_BARRIER'], COMMON_FIELDS['REBATE'], COMMON_FIELDS['PAYOFF'], COMMON_FIELDS['EXERCISE'])
+        print("BarrierOption")
     elif COMMON_FIELDS['EXOTIC_TYPE'].upper() in ['KO_DB_BARRIER', 'KI_DB_BARRIER', 'KIKO', 'KOKI']:
         COMMON_FIELDS['PAYOFF'] = ql.PlainVanillaPayoff(COMMON_FIELDS['TYPE'], COMMON_FIELDS['STRIKE'])
         COMMON_FIELDS['OPTION'] = ql.DoubleBarrierOption(COMMON_FIELDS['BARRIER_TYPE'], COMMON_FIELDS['LOWER_BARRIER'], COMMON_FIELDS['UPPER_BARRIER'], COMMON_FIELDS['REBATE'], COMMON_FIELDS['PAYOFF'], COMMON_FIELDS['EXERCISE'])
+        print("DoubleBarrierOption")
     else:
         errors.append("Invalid EXOTIC_TYPE. Supported types: VANILLA, KO_BARRIER, KI_BARRIER, KO_DB_BARRIER, KI_DB_BARRIER, KIKO, KOKI.")
-
+        print('Invalid EXOTIC_TYPE. Supported types: VANILLA, KO_BARRIER, KI_BARRIER, KO_DB_BARRIER, KI_DB_BARRIER, KIKO, KOKI.')
     
     # Construct process
     TODAY = ql.Date().todaysDate()
     DOMESTIC_RF = ql.YieldTermStructureHandle(ql.FlatForward(TODAY, 0.05, ql.Actual365Fixed()))
     FOREIGN_RF = ql.YieldTermStructureHandle(ql.FlatForward(TODAY, 0.01, ql.Actual365Fixed()))
-    VOLATILITY_TS = ql.BlackVolTermStructureHandle(ql.BlackConstantVol(TODAY, ql.NullCalendar(), 0.1, ql.Actual365Fixed()))
+    VOLATILITY_TS = ql.BlackVolTermStructureHandle(ql.BlackConstantVol(TODAY, ql.NullCalendar(), COMMON_FIELDS['VOLATILITY'], ql.Actual365Fixed()))
     SPOT_HANDLE = ql.QuoteHandle(ql.SimpleQuote(COMMON_FIELDS['SPOT']))
     PROCESS = ql.BlackScholesMertonProcess(SPOT_HANDLE, FOREIGN_RF, DOMESTIC_RF, VOLATILITY_TS)
-    
+
     # Construct engine
     if COMMON_FIELDS['EXOTIC_TYPE'].upper() == 'VANILLA':
         COMMON_FIELDS['ENGINE'] = ql.AnalyticEuropeanEngine(PROCESS)
+        print("AnalyticEuropeanEngine")
     elif COMMON_FIELDS['EXOTIC_TYPE'].upper() in ['KO_BARRIER', 'KI_BARRIER']:
         COMMON_FIELDS['ENGINE'] = ql.AnalyticBarrierEngine(PROCESS)
+        print("AnalyticBarrierEngine")
     elif COMMON_FIELDS['EXOTIC_TYPE'].upper() in ['KO_DB_BARRIER', 'KI_DB_BARRIER', 'KIKO', 'KOKI']:
         COMMON_FIELDS['ENGINE'] = ql.AnalyticDoubleBarrierEngine(PROCESS)
-    
+        print("AnalyticDoubleBarrierEngine")
+
     # Calculate option price
     COMMON_FIELDS['OPTION'].setPricingEngine(COMMON_FIELDS['ENGINE'])
-    
+
     # Create a new dictionary to store the calculated fields
     CALCULATED_FIELDS = {}
-    
+
     CALCULATED_FIELDS['OPTION_PRICE'] = COMMON_FIELDS['OPTION'].NPV()
-    CALCULATED_FIELDS['DELTA'] = COMMON_FIELDS['OPTION'].delta()
-    CALCULATED_FIELDS['GAMMA'] = COMMON_FIELDS['OPTION'].gamma()
-    CALCULATED_FIELDS['VEGA'] = COMMON_FIELDS['OPTION'].vega()
-    # CALCULATED_FIELDS['THETA'] = COMMON_FIELDS['OPTION'].theta()
+    CALCULATED_FIELDS['DELTA'] = 0.0
+    CALCULATED_FIELDS['GAMMA'] = 0.0
+    CALCULATED_FIELDS['VEGA'] = 0.0
+
+    if str(COMMON_FIELDS['EXOTIC_TYPE']).upper() == 'VANILLA':
+        CALCULATED_FIELDS['DELTA'] = COMMON_FIELDS['OPTION'].delta()
+        CALCULATED_FIELDS['GAMMA'] = COMMON_FIELDS['OPTION'].gamma()
+        CALCULATED_FIELDS['VEGA'] = COMMON_FIELDS['OPTION'].vega()
 
     # Print the option type
     print(f"\nEXOTIC_TYPE: {EXOTIC_TYPE}")
