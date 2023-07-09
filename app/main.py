@@ -175,9 +175,9 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
                     # Set calculation date to today's date
                     OPTION_PARAM['EVALUATION_DATE'] = ql.Date(date.today().day, date.today().month, date.today().year)
                     OPTION_PARAM['SETTLEMENT_DATE'] = OPTION_PARAM['EVALUATION_DATE'] + 2
-                    print(f"Evaluation date: {OPTION_PARAM['EVALUATION_DATE']}.")
-                    print(f"Settlement date: {OPTION_PARAM['SETTLEMENT_DATE']}.")
                     NumberOfDaysBetween = OPTION_PARAM['EXPIRY_DATE'] - OPTION_PARAM['EVALUATION_DATE']
+                    print(f"Evaluation date: {OPTION_PARAM['CALCULATION_DATE']}.")
+                    print(f"Settlement date: {OPTION_PARAM['SETTLEMENT_DATE']}.")
                     print(f"Number of days between expiry and evaluation date: {NumberOfDaysBetween}.")
                 except RuntimeError:
                     errors.append("Runtime error with MATURITY. Ex: 29Sep2023, 1m, 3M, 1y, 1w, 1d.")
@@ -195,7 +195,7 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
             if str(OPTION_PARAM['MATURITY'][-1]).upper() in ['D', 'W', 'M', 'Y']:
                 # Maturity specified as '1m' or '3M'
                 # Extract the number
-                period = int(OPTION_PARAM['MATURITY'][0:-1])
+                period = int(OPTION_PARAM['MATURITY'][0:1])
                 #Extract the time unit
                 time_unit = str(OPTION_PARAM['MATURITY'][-1]).upper()
                 if time_unit == 'D':
@@ -206,21 +206,21 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
                     period = ql.Period(period, ql.Months)
                 elif time_unit == 'Y':
                     period = ql.Period(period, ql.Years)
-                # Convert maturity date to datetime object
-                maturity_date = OPTION_PARAM['EVALUATION_DATE'] + period
-                
-                # Convert maturity date to QuantLib Date object
-                OPTION_PARAM['EXPIRY_DATE'] = ql.Date(maturity_date.day, maturity_date.month, maturity_date.year)
-                OPTION_PARAM['DELIVERY_DATE'] = OPTION_PARAM['EXPIRY_DATE'] + 2
-                print(f"Expiry date: {OPTION_PARAM['EXPIRY_DATE']}.")
-                print(f"Delivery date: {OPTION_PARAM['DELIVERY_DATE']}.")
+                # print("period: ", period)
 
                 # Set calculation date to today's date
                 OPTION_PARAM['EVALUATION_DATE'] = ql.Date(date.today().day, date.today().month, date.today().year)
                 OPTION_PARAM['SETTLEMENT_DATE'] = OPTION_PARAM['EVALUATION_DATE'] + 2
-                print(f"Evaluation date: {OPTION_PARAM['EVALUATION_DATE']}.")
-                print(f"Settlement date: {OPTION_PARAM['SETTLEMENT_DATE']}.")
+                print(f"Evaluation Date: {OPTION_PARAM['EVALUATION_DATE']}")
+                print(f"Settlement Date: {OPTION_PARAM['SETTLEMENT_DATE']}")
+
+                # Convert expiry date to QuantLib Date object
+                expiry_date = OPTION_PARAM['EVALUATION_DATE'] + period
+                OPTION_PARAM['EXPIRY_DATE'] = ql.Date(expiry_date.dayOfMonth(), expiry_date.month(), expiry_date.year())
+                OPTION_PARAM['DELIVERY_DATE'] = OPTION_PARAM['EXPIRY_DATE'] + 2
                 NumberOfDaysBetween = OPTION_PARAM['EXPIRY_DATE'] - OPTION_PARAM['EVALUATION_DATE']
+                print(f"Expiry date: {OPTION_PARAM['EXPIRY_DATE']}.")
+                print(f"Delivery date: {OPTION_PARAM['DELIVERY_DATE']}.")
                 print(f"Number of days between expiry and evaluation date: {NumberOfDaysBetween}.")
             else:
                 errors.append("2 Invalid MATURITY format. Ex: 29Sep2023, 1m, 3M, 1y, 1w, 1d.")
@@ -228,8 +228,7 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
             errors.append("3 Invalid MATURITY format. Ex: 29Sep2023, 1m, 3M, 1y, 1w, 1d.")
     else:
         errors.append("4 Invalid MATURITY format. Ex: 29Sep2023, 1m, 3M, 1y, 1w, 1d.")
-    
-    print(OPTION_PARAM['EXPIRY_DATE'])
+        
     # Process strike
     if OPTION_PARAM['STRIKE'] == '':
         errors.append("STRIKE is empty")
