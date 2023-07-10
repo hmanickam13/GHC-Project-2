@@ -164,7 +164,8 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
             errors.append("Invalid CURRENCY_PAIR. Ex: USDEUR")
     except:
         errors.append("Runtime error in CURRENCY_PAIR.")
-    
+        return errors
+
     # MATURITY
     try:
         # Process maturity
@@ -248,6 +249,7 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
     except RuntimeError:
         errors.append("Runtime error with MATURITY. Ex: 29Sep2023, 1m, 3M, 1y, 1w, 1d.")
         print("Runtime error with MATURITY. Ex: 29Sep2023, 1m, 3M, 1y, 1w, 1d.")
+        return errors
     
     # STRIKE
     try:
@@ -266,6 +268,7 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
     except RuntimeError:
         errors.append("Runtime error with STRIKE. Ex: 29Sep2023, 1m, 3M, 1y, 1w, 1d.")
         print("Runtime error with STRIKE. Ex: 29Sep2023, 1m, 3M, 1y, 1w, 1d.")
+        return errors
     
     # NOTIONAL
     try:
@@ -287,6 +290,7 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
     except RuntimeError:
         errors.append("Runtime Error with NOTIONAL. Ex: 100.")
         print("Runtime Error with NOTIONAL. Ex: 100.")
+        return errors
     
     # SPOT
     try:
@@ -308,6 +312,7 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
     except RuntimeError:
         errors.append("Runtime Error with SPOT. Ex: 100.")
         print("Runtime Error with SPOT. Ex: 100.")
+        return errors
     
     # VOLATILITY
     try:
@@ -329,7 +334,8 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
     except RuntimeError:
         errors.append("Runtime Error with VOLATILITY. Ex: 0.2.")
         print("Runtime Error with VOLATILITY. Ex: 0.2.")
-
+        return errors
+    
     # EXERCISE
     try:
         ## Process exercise type
@@ -345,7 +351,8 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
     except RuntimeError:
         errors.append("Runtime Error with EXERCISE. Ex: E, A.")
         print("Runtime Error with EXERCISE. Ex: E, A.")
-
+        return errors
+    
     # OPTION_TYPE
     try:
         # Process option type
@@ -365,7 +372,8 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
     except RuntimeError:
         errors.append("Runtime Error with TYPE. Ex: CALL, PUT.")
         print("Runtime Error with TYPE. Ex: CALL, PUT.")
-        
+        return errors
+    
     # EXOTIC_TYPE
     try:
         # Barrier options
@@ -458,7 +466,8 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
     except RuntimeError:
         errors.append("RuntimeError in EXOTIC_TYPE selection.")
         print("RuntimeError in EXOTIC_TYPE selection.")
-
+        return errors
+    
     # Construct payoff & option
     try:
         # Create rebate
@@ -486,6 +495,8 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
     except RuntimeError:
         errors.append("Runtime Error with constructing payoff & option.")
         print("Runtime Error with constructing payoff & option.")
+        return errors
+    
     #Settings such as calendar, evaluationdate; daycount
     try:           
         calendar = ql.UnitedStates(ql.UnitedStates.GovernmentBond)
@@ -495,6 +506,7 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
     except RuntimeError:
         errors.append("RuntimeError in calendar settings.")
         print("RuntimeError in calendar settings.")
+        return errors
     
     # Construct process
     try:
@@ -512,6 +524,7 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
     except:
         errors.append("RuntimeError in constructing process.")
         print("RuntimeError in constructing process.")
+        return errors
     
     # Construct engine
     try:
@@ -530,6 +543,7 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
     except RuntimeError:
         errors.append("RuntimeError in constructing engine.")
         print("RuntimeError in constructing engine.")
+        return errors
     
     # Calculate option price
     try:
@@ -563,8 +577,6 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
     except RuntimeError:
         errors.append("RuntimeError in calculating option price & greeks.")
         print("RuntimeError in calculating option price & greeks.")
-    
-    if len(errors) > 0:
         return errors
     
     # Return calculated fields
