@@ -176,7 +176,7 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
                     OPTION_PARAM['EVALUATION_DATE'] = ql.Date(date.today().day, date.today().month, date.today().year)
                     OPTION_PARAM['SETTLEMENT_DATE'] = OPTION_PARAM['EVALUATION_DATE'] + 2
                     NumberOfDaysBetween = OPTION_PARAM['EXPIRY_DATE'] - OPTION_PARAM['EVALUATION_DATE']
-                    print(f"Evaluation date: {OPTION_PARAM['CALCULATION_DATE']}.")
+                    print(f"Evaluation date: {OPTION_PARAM['EVALUATION_DATE']}.")
                     print(f"Settlement date: {OPTION_PARAM['SETTLEMENT_DATE']}.")
                     print(f"Number of days between expiry and evaluation date: {NumberOfDaysBetween}.")
                 except RuntimeError:
