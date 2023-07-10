@@ -109,6 +109,10 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
         'EXOTIC_TYPE': EXOTIC_TYPE,
         'EXERCISE': EXERCISE,
         'TYPE': TYPE,
+        'UPPER_BARRIER': UPPER_BARRIER,
+        'LOWER_BARRIER': LOWER_BARRIER,
+        'WINDOW_START_DATE': WINDOW_START_DATE,
+        'WINDOW_END_DATE': WINDOW_END_DATE,
         'SPOT': SPOT,
         'VOLATILITY': VOLATILITY
     }
