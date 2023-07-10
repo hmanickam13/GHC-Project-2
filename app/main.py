@@ -318,30 +318,53 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
 
     # Barrier options
     if OPTION_PARAM['EXOTIC_TYPE'].upper() in ['KO_BARRIER', 'KI_BARRIER']:
-        OPTION_PARAM['UPPER_BARRIER'] = UPPER_BARRIER
-        try:
-            OPTION_PARAM['UPPER_BARRIER'] = float(OPTION_PARAM['UPPER_BARRIER'])
-        except ValueError:
-            errors.append("Invalid UPPER_BARRIER. Must be a float.")
+        print("Barrier options")
+        if OPTION_PARAM['TYPE'] == ql.Option.Call:
+
+            if OPTION_PARAM['EXOTIC_TYPE'].upper() == 'KO_BARRIER':
+                OPTION_PARAM['BARRIER_TYPE'] = ql.Barrier.UpOut
+                print("Knock In")
+            elif OPTION_PARAM['EXOTIC_TYPE'].upper() == 'KI_BARRIER':
+                OPTION_PARAM['BARRIER_TYPE'] = ql.Barrier.UpIn
+                print("Knock In")
+
+            if OPTION_PARAM['UPPER_BARRIER'] == '':
+                errors.append("UPPER_BARRIER is empty")
+            else:
+                try:              
+                    if isinstance(float(OPTION_PARAM['UPPER_BARRIER']), float) and float(OPTION_PARAM['UPPER_BARRIER']) > float(OPTION_PARAM['SPOT']):
+                        # Convert to float
+                        OPTION_PARAM['UPPER_BARRIER'] = float(OPTION_PARAM['UPPER_BARRIER'])
+                    elif isinstance(float(OPTION_PARAM['UPPER_BARRIER']), float) and float(OPTION_PARAM['UPPER_BARRIER']) <= float(OPTION_PARAM['SPOT']):
+                        errors.append("UPPER_BARRIER must be > SPOT.")
+                except ValueError:
+                    errors.append("Invalid UPPER_BARRIER. Must be a float.")
+            print(f"UPPER_BARRIER: {OPTION_PARAM['UPPER_BARRIER']}")   
         
-        if OPTION_PARAM['EXOTIC_TYPE'].upper() == 'KO_BARRIER':
-            OPTION_PARAM['BARRIER_TYPE'] = ql.Barrier.UpOut
-        elif OPTION_PARAM['EXOTIC_TYPE'].upper() == 'KI_BARRIER':
-            OPTION_PARAM['BARRIER_TYPE'] = ql.Barrier.UpIn
-    
+        elif OPTION_PARAM['TYPE'] == ql.Option.Put:
+
+            if OPTION_PARAM['EXOTIC_TYPE'].upper() == 'KO_BARRIER':
+                OPTION_PARAM['BARRIER_TYPE'] = ql.Barrier.DownOut
+                print("Knock In")
+            elif OPTION_PARAM['EXOTIC_TYPE'].upper() == 'KI_BARRIER':
+                OPTION_PARAM['BARRIER_TYPE'] = ql.Barrier.DownIn
+                print("Knock In")
+
+            if OPTION_PARAM['LOWER_BARRIER'] == '':
+                errors.append("LOWER_BARRIER is empty")
+            else:
+                try:              
+                    if isinstance(float(OPTION_PARAM['LOWER_BARRIER']), float) and float(OPTION_PARAM['LOWER_BARRIER']) < float(OPTION_PARAM['SPOT']):
+                        # Convert to float
+                        OPTION_PARAM['LOWER_BARRIER'] = float(OPTION_PARAM['LOWER_BARRIER'])
+                    elif isinstance(float(OPTION_PARAM['LOWER_BARRIER']), float) and float(OPTION_PARAM['LOWER_BARRIER']) >= float(OPTION_PARAM['SPOT']):
+                        errors.append("LOWER_BARRIER must be < SPOT.")
+                except ValueError:
+                    errors.append("Invalid LOWER_BARRIER. Must be a float.")
+            print(f"LOWER_BARRIER: {OPTION_PARAM['LOWER_BARRIER']}")   
+        
     # Double barrier options
     elif OPTION_PARAM['EXOTIC_TYPE'].upper() in ['KO_DB_BARRIER', 'KI_DB_BARRIER', 'KIKO', 'KOKI']:
-        OPTION_PARAM['UPPER_BARRIER'] = UPPER_BARRIER
-        OPTION_PARAM['LOWER_BARRIER'] = LOWER_BARRIER
-        try:
-            OPTION_PARAM['UPPER_BARRIER'] = float(OPTION_PARAM['UPPER_BARRIER'])
-        except ValueError:
-            errors.append("Invalid UPPER_BARRIER. Must be a float.")
-        try:
-            OPTION_PARAM['LOWER_BARRIER'] = float(OPTION_PARAM['LOWER_BARRIER'])
-        except ValueError:
-            errors.append("Invalid LOWER_BARRIER. Must be a float.")
-
         if OPTION_PARAM['EXOTIC_TYPE'].upper() == 'KO_DB_BARRIER':
             OPTION_PARAM['BARRIER_TYPE'] = ql.DoubleBarrier.KnockOut
         elif OPTION_PARAM['EXOTIC_TYPE'].upper() == 'KI_DB_BARRIER':
@@ -350,8 +373,41 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
             OPTION_PARAM['BARRIER_TYPE'] = ql.DoubleBarrier.KIKO
         elif OPTION_PARAM['EXOTIC_TYPE'].upper() == 'KOKI':
             OPTION_PARAM['BARRIER_TYPE'] = ql.DoubleBarrier.KOKI
+        
+        if OPTION_PARAM['UPPER_BARRIER'] == '':
+            errors.append("UPPER_BARRIER is empty")
+        else:
+            try:              
+                if isinstance(float(OPTION_PARAM['UPPER_BARRIER']), float) and float(OPTION_PARAM['UPPER_BARRIER']) > float(OPTION_PARAM['SPOT']):
+                    # Convert to float
+                    OPTION_PARAM['UPPER_BARRIER'] = float(OPTION_PARAM['UPPER_BARRIER'])
+                elif isinstance(float(OPTION_PARAM['UPPER_BARRIER']), float) and float(OPTION_PARAM['UPPER_BARRIER']) <= float(OPTION_PARAM['SPOT']):
+                    errors.append("UPPER_BARRIER must be > SPOT.")
+            except ValueError:
+                errors.append("Invalid UPPER_BARRIER. Must be a float.")
+        print(f"UPPER_BARRIER: {OPTION_PARAM['UPPER_BARRIER']}")  
+        
+        if OPTION_PARAM['LOWER_BARRIER'] == '':
+            errors.append("LOWER_BARRIER is empty")
+        else:
+            try:              
+                if isinstance(float(OPTION_PARAM['LOWER_BARRIER']), float) and float(OPTION_PARAM['LOWER_BARRIER']) > float(OPTION_PARAM['SPOT']):
+                    # Convert to float
+                    OPTION_PARAM['LOWER_BARRIER'] = float(OPTION_PARAM['LOWER_BARRIER'])
+                elif isinstance(float(OPTION_PARAM['LOWER_BARRIER']), float) and float(OPTION_PARAM['LOWER_BARRIER']) <= float(OPTION_PARAM['SPOT']):
+                    errors.append("LOWER_BARRIER must be > SPOT.")
+            except ValueError:
+                errors.append("Invalid LOWER_BARRIER. Must be a float.")
+        print(f"LOWER_BARRIER: {OPTION_PARAM['LOWER_BARRIER']}")  
         print('DoubleBarrier options')
 
+    # Asian options
+    # elif OPTION_PARAM['EXOTIC_TYPE'].upper() in ['ASIAN']:
+
+    # Create rebate
+    OPTION_PARAM['REBATE'] = 0.0
+
+        
     # Asian options
     # elif OPTION_PARAM['EXOTIC_TYPE'].upper() in ['ASIAN']:
 
@@ -361,20 +417,23 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
     # Construct payoff & option
     if OPTION_PARAM['EXOTIC_TYPE'].upper() == 'VANILLA':
         OPTION_PARAM['PAYOFF'] = ql.PlainVanillaPayoff(OPTION_PARAM['TYPE'], OPTION_PARAM['STRIKE'])
-        OPTION_PARAM['OPTION'] = ql.VanillaOption(OPTION_PARAM['PAYOFF'], OPTION_PARAM['EXERCISE_Q'])
+        OPTION_PARAM['OPTION'] = ql.VanillaOption(OPTION_PARAM['PAYOFF'], OPTION_PARAM['EXERCISE'])
         print("VanillaOption")
-    elif OPTION_PARAM['EXOTIC_TYPE'].upper() in ['KO_BARRIER', 'KI_BARRIER']:
+    elif OPTION_PARAM['EXOTIC_TYPE'].upper() in ['KI_BARRIER']:
         OPTION_PARAM['PAYOFF'] = ql.PlainVanillaPayoff(OPTION_PARAM['TYPE'], OPTION_PARAM['STRIKE'])
-        OPTION_PARAM['OPTION'] = ql.BarrierOption(OPTION_PARAM['BARRIER_TYPE'], OPTION_PARAM['UPPER_BARRIER'], OPTION_PARAM['REBATE'], OPTION_PARAM['PAYOFF'], OPTION_PARAM['EXERCISE_Q'])
-        print("BarrierOption")
+        OPTION_PARAM['OPTION'] = ql.BarrierOption(OPTION_PARAM['BARRIER_TYPE'], OPTION_PARAM['UPPER_BARRIER'], OPTION_PARAM['REBATE'], OPTION_PARAM['PAYOFF'], OPTION_PARAM['EXERCISE'])
+        print("Knock in BarrierOption")
+    elif OPTION_PARAM['EXOTIC_TYPE'].upper() in ['KO_BARRIER']:
+        OPTION_PARAM['PAYOFF'] = ql.PlainVanillaPayoff(OPTION_PARAM['TYPE'], OPTION_PARAM['STRIKE'])
+        OPTION_PARAM['OPTION'] = ql.BarrierOption(OPTION_PARAM['BARRIER_TYPE'], OPTION_PARAM['LOWER_BARRIER'], OPTION_PARAM['REBATE'], OPTION_PARAM['PAYOFF'], OPTION_PARAM['EXERCISE'])
+        print("Knock out BarrierOption")
     elif OPTION_PARAM['EXOTIC_TYPE'].upper() in ['KO_DB_BARRIER', 'KI_DB_BARRIER', 'KIKO', 'KOKI']:
         OPTION_PARAM['PAYOFF'] = ql.PlainVanillaPayoff(OPTION_PARAM['TYPE'], OPTION_PARAM['STRIKE'])
-        OPTION_PARAM['OPTION'] = ql.DoubleBarrierOption(OPTION_PARAM['BARRIER_TYPE'], OPTION_PARAM['LOWER_BARRIER'], OPTION_PARAM['UPPER_BARRIER'], OPTION_PARAM['REBATE'], OPTION_PARAM['PAYOFF'], OPTION_PARAM['EXERCISE_Q'])
+        OPTION_PARAM['OPTION'] = ql.DoubleBarrierOption(OPTION_PARAM['BARRIER_TYPE'], OPTION_PARAM['LOWER_BARRIER'], OPTION_PARAM['UPPER_BARRIER'], OPTION_PARAM['REBATE'], OPTION_PARAM['PAYOFF'], OPTION_PARAM['EXERCISE'])
         print("DoubleBarrierOption")
     else:
         errors.append("Invalid EXOTIC_TYPE. Supported types: VANILLA, KO_BARRIER, KI_BARRIER, KO_DB_BARRIER, KI_DB_BARRIER, KIKO, KOKI.")
         print('Invalid EXOTIC_TYPE. Supported types: VANILLA, KO_BARRIER, KI_BARRIER, KO_DB_BARRIER, KI_DB_BARRIER, KIKO, KOKI.')
-    
 
     #Settings such as calendar, evaluationdate; daycount
     calendar = ql.UnitedStates(ql.UnitedStates.GovernmentBond)
