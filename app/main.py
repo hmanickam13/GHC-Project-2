@@ -179,6 +179,10 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
                     print(f"Evaluation date: {OPTION_PARAM['EVALUATION_DATE']}.")
                     print(f"Settlement date: {OPTION_PARAM['SETTLEMENT_DATE']}.")
                     print(f"Number of days between expiry and evaluation date: {NumberOfDaysBetween}.")
+                    
+                    # Set evaluation date
+                    ql.Settings.instance().evaluationDate = OPTION_PARAM['EVALUATION_DATE']
+
                 except RuntimeError:
                     errors.append("Runtime error with MATURITY. Ex: 29Sep2023, 1m, 3M, 1y, 1w, 1d.")
                     print(f"Runtime error with MATURITY. Ex: 29Sep2023, 1m, 3M, 1y, 1w, 1d.")
@@ -213,6 +217,9 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
                 OPTION_PARAM['SETTLEMENT_DATE'] = OPTION_PARAM['EVALUATION_DATE'] + 2
                 print(f"Evaluation Date: {OPTION_PARAM['EVALUATION_DATE']}")
                 print(f"Settlement Date: {OPTION_PARAM['SETTLEMENT_DATE']}")
+
+                # Set evaluation date
+                ql.Settings.instance().evaluationDate = OPTION_PARAM['EVALUATION_DATE']
 
                 # Convert expiry date to QuantLib Date object
                 expiry_date = OPTION_PARAM['EVALUATION_DATE'] + period
