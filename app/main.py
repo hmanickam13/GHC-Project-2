@@ -560,7 +560,7 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
         errors.append("RuntimeError in calculating option price & greeks.")
         print("RuntimeError in calculating option price & greeks.")
     
-    if errors > 0:
+    if len(errors) > 0:
         return errors
     
     # Return calculated fields
