@@ -415,6 +415,7 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
     OPTION_PARAM['REBATE'] = 0.0
 
         
+
     # Asian options
     # elif OPTION_PARAM['EXOTIC_TYPE'].upper() in ['ASIAN']:
 
@@ -424,24 +425,24 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
     # Construct payoff & option
     if OPTION_PARAM['EXOTIC_TYPE'].upper() == 'VANILLA':
         OPTION_PARAM['PAYOFF'] = ql.PlainVanillaPayoff(OPTION_PARAM['TYPE'], OPTION_PARAM['STRIKE'])
-        OPTION_PARAM['OPTION'] = ql.VanillaOption(OPTION_PARAM['PAYOFF'], OPTION_PARAM['EXERCISE'])
+        OPTION_PARAM['OPTION'] = ql.VanillaOption(OPTION_PARAM['PAYOFF'], OPTION_PARAM['EXERCISE_Q'])
         print("VanillaOption")
     elif OPTION_PARAM['EXOTIC_TYPE'].upper() in ['KI_BARRIER']:
         OPTION_PARAM['PAYOFF'] = ql.PlainVanillaPayoff(OPTION_PARAM['TYPE'], OPTION_PARAM['STRIKE'])
-        OPTION_PARAM['OPTION'] = ql.BarrierOption(OPTION_PARAM['BARRIER_TYPE'], OPTION_PARAM['UPPER_BARRIER'], OPTION_PARAM['REBATE'], OPTION_PARAM['PAYOFF'], OPTION_PARAM['EXERCISE'])
+        OPTION_PARAM['OPTION'] = ql.BarrierOption(OPTION_PARAM['BARRIER_TYPE'], OPTION_PARAM['UPPER_BARRIER'], OPTION_PARAM['REBATE'], OPTION_PARAM['PAYOFF'], OPTION_PARAM['EXERCISE_Q'])
         print("Knock in BarrierOption")
     elif OPTION_PARAM['EXOTIC_TYPE'].upper() in ['KO_BARRIER']:
         OPTION_PARAM['PAYOFF'] = ql.PlainVanillaPayoff(OPTION_PARAM['TYPE'], OPTION_PARAM['STRIKE'])
-        OPTION_PARAM['OPTION'] = ql.BarrierOption(OPTION_PARAM['BARRIER_TYPE'], OPTION_PARAM['LOWER_BARRIER'], OPTION_PARAM['REBATE'], OPTION_PARAM['PAYOFF'], OPTION_PARAM['EXERCISE'])
+        OPTION_PARAM['OPTION'] = ql.BarrierOption(OPTION_PARAM['BARRIER_TYPE'], OPTION_PARAM['LOWER_BARRIER'], OPTION_PARAM['REBATE'], OPTION_PARAM['PAYOFF'], OPTION_PARAM['EXERCISE_Q'])
         print("Knock out BarrierOption")
     elif OPTION_PARAM['EXOTIC_TYPE'].upper() in ['KO_DB_BARRIER', 'KI_DB_BARRIER', 'KIKO', 'KOKI']:
         OPTION_PARAM['PAYOFF'] = ql.PlainVanillaPayoff(OPTION_PARAM['TYPE'], OPTION_PARAM['STRIKE'])
-        OPTION_PARAM['OPTION'] = ql.DoubleBarrierOption(OPTION_PARAM['BARRIER_TYPE'], OPTION_PARAM['LOWER_BARRIER'], OPTION_PARAM['UPPER_BARRIER'], OPTION_PARAM['REBATE'], OPTION_PARAM['PAYOFF'], OPTION_PARAM['EXERCISE'])
+        OPTION_PARAM['OPTION'] = ql.DoubleBarrierOption(OPTION_PARAM['BARRIER_TYPE'], OPTION_PARAM['LOWER_BARRIER'], OPTION_PARAM['UPPER_BARRIER'], OPTION_PARAM['REBATE'], OPTION_PARAM['PAYOFF'], OPTION_PARAM['EXERCISE_Q'])
         print("DoubleBarrierOption")
     else:
         errors.append("Invalid EXOTIC_TYPE. Supported types: VANILLA, KO_BARRIER, KI_BARRIER, KO_DB_BARRIER, KI_DB_BARRIER, KIKO, KOKI.")
         print('Invalid EXOTIC_TYPE. Supported types: VANILLA, KO_BARRIER, KI_BARRIER, KO_DB_BARRIER, KI_DB_BARRIER, KIKO, KOKI.')
-
+        
     #Settings such as calendar, evaluationdate; daycount
     calendar = ql.UnitedStates(ql.UnitedStates.GovernmentBond)
     ql.Settings.instance().evaluationDate = OPTION_PARAM['EVALUATION_DATE']
