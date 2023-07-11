@@ -632,18 +632,17 @@ async def calculate_option_prices_bulk(payload: BulkOptionPriceRequest):
             # Ensure all tasks are completed before exiting
             await asyncio.gather(*[task for _, task in tasks if not task.done()])
 
-    print("Payload below 1:")
-    print(option_values)
+    # print("Payload below 1:")
+    # print(option_values)
     # Sort the option prices based on the original order
-    option_prices = option_values.sort(key=lambda x: x[0])
-    print("Payload below 2:")
-    print(option_prices)
+    option_values.sort(key=lambda x: x[0])
+    print("Payload below:")
+    print(option_values)
     # # Extract the option prices without the index
     # option_prices = [price for _, price in option_values]
 
-
     # Return the list of option prices as the final response
-    return {option_prices}
+    return {option_values}
 
 if __name__ == '__main__':
     uvicorn.run(app, host='0.0.0.0', port=80)
