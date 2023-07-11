@@ -383,7 +383,7 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
 
                 if OPTION_PARAM['EXOTIC_TYPE'].upper() == 'KO_BARRIER':
                     OPTION_PARAM['BARRIER_TYPE'] = ql.Barrier.UpOut
-                    print("Knock In")
+                    print("Knock Out")
                 elif OPTION_PARAM['EXOTIC_TYPE'].upper() == 'KI_BARRIER':
                     OPTION_PARAM['BARRIER_TYPE'] = ql.Barrier.UpIn
                     print("Knock In")
@@ -405,7 +405,7 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
 
                 if OPTION_PARAM['EXOTIC_TYPE'].upper() == 'KO_BARRIER':
                     OPTION_PARAM['BARRIER_TYPE'] = ql.Barrier.DownOut
-                    print("Knock In")
+                    print("Knock Out")
                 elif OPTION_PARAM['EXOTIC_TYPE'].upper() == 'KI_BARRIER':
                     OPTION_PARAM['BARRIER_TYPE'] = ql.Barrier.DownIn
                     print("Knock In")
@@ -434,32 +434,60 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
             elif OPTION_PARAM['EXOTIC_TYPE'].upper() == 'KOKI':
                 OPTION_PARAM['BARRIER_TYPE'] = ql.DoubleBarrier.KOKI
             
-            if OPTION_PARAM['UPPER_BARRIER'] == '':
-                errors.append("UPPER_BARRIER is empty")
-            else:
-                try:              
-                    if isinstance(float(OPTION_PARAM['UPPER_BARRIER']), float) and float(OPTION_PARAM['UPPER_BARRIER']) > float(OPTION_PARAM['SPOT']):
-                        # Convert to float
-                        OPTION_PARAM['UPPER_BARRIER'] = float(OPTION_PARAM['UPPER_BARRIER'])
-                    elif isinstance(float(OPTION_PARAM['UPPER_BARRIER']), float) and float(OPTION_PARAM['UPPER_BARRIER']) <= float(OPTION_PARAM['SPOT']):
-                        errors.append("UPPER_BARRIER must be > SPOT.")
-                except ValueError:
-                    errors.append("Invalid UPPER_BARRIER. Must be a float.")
-            print(f"UPPER_BARRIER: {OPTION_PARAM['UPPER_BARRIER']}")  
-            
-            if OPTION_PARAM['LOWER_BARRIER'] == '':
-                errors.append("LOWER_BARRIER is empty")
-            else:
-                try:              
-                    if isinstance(float(OPTION_PARAM['LOWER_BARRIER']), float) and float(OPTION_PARAM['LOWER_BARRIER']) > float(OPTION_PARAM['SPOT']):
-                        # Convert to float
-                        OPTION_PARAM['LOWER_BARRIER'] = float(OPTION_PARAM['LOWER_BARRIER'])
-                    elif isinstance(float(OPTION_PARAM['LOWER_BARRIER']), float) and float(OPTION_PARAM['LOWER_BARRIER']) <= float(OPTION_PARAM['SPOT']):
-                        errors.append("LOWER_BARRIER must be > SPOT.")
-                except ValueError:
-                    errors.append("Invalid LOWER_BARRIER. Must be a float.")
-            print(f"LOWER_BARRIER: {OPTION_PARAM['LOWER_BARRIER']}")  
-            print('DoubleBarrier options')
+            if OPTION_PARAM['TYPE'] == ql.Option.Call:
+                if OPTION_PARAM['UPPER_BARRIER'] == '':
+                    errors.append("UPPER_BARRIER is empty")
+                else:
+                    try:              
+                        if isinstance(float(OPTION_PARAM['UPPER_BARRIER']), float) and float(OPTION_PARAM['UPPER_BARRIER']) > float(OPTION_PARAM['SPOT']):
+                            # Convert to float
+                            OPTION_PARAM['UPPER_BARRIER'] = float(OPTION_PARAM['UPPER_BARRIER'])
+                        elif isinstance(float(OPTION_PARAM['UPPER_BARRIER']), float) and float(OPTION_PARAM['UPPER_BARRIER']) <= float(OPTION_PARAM['SPOT']):
+                            errors.append("UPPER_BARRIER must be > SPOT.")
+                    except ValueError:
+                        errors.append("Invalid UPPER_BARRIER. Must be a float.")
+                print(f"UPPER_BARRIER: {OPTION_PARAM['UPPER_BARRIER']}")  
+                
+                if OPTION_PARAM['LOWER_BARRIER'] == '':
+                    errors.append("LOWER_BARRIER is empty")
+                else:
+                    try:              
+                        if isinstance(float(OPTION_PARAM['LOWER_BARRIER']), float) and float(OPTION_PARAM['LOWER_BARRIER']) > float(OPTION_PARAM['SPOT']):
+                            # Convert to float
+                            OPTION_PARAM['LOWER_BARRIER'] = float(OPTION_PARAM['LOWER_BARRIER'])
+                        elif isinstance(float(OPTION_PARAM['LOWER_BARRIER']), float) and float(OPTION_PARAM['LOWER_BARRIER']) <= float(OPTION_PARAM['SPOT']):
+                            errors.append("LOWER_BARRIER must be > SPOT.")
+                    except ValueError:
+                        errors.append("Invalid LOWER_BARRIER. Must be a float.")
+                print(f"LOWER_BARRIER: {OPTION_PARAM['LOWER_BARRIER']}")  
+                print('DoubleBarrier options')
+            elif OPTION_PARAM['TYPE'] == ql.Option.Put:
+                if OPTION_PARAM['UPPER_BARRIER'] == '':
+                    errors.append("UPPER_BARRIER is empty")
+                else:
+                    try:              
+                        if isinstance(float(OPTION_PARAM['UPPER_BARRIER']), float) and float(OPTION_PARAM['UPPER_BARRIER']) < float(OPTION_PARAM['SPOT']):
+                            # Convert to float
+                            OPTION_PARAM['UPPER_BARRIER'] = float(OPTION_PARAM['UPPER_BARRIER'])
+                        elif isinstance(float(OPTION_PARAM['UPPER_BARRIER']), float) and float(OPTION_PARAM['UPPER_BARRIER']) >= float(OPTION_PARAM['SPOT']):
+                            errors.append("UPPER_BARRIER must be < SPOT.")
+                    except ValueError:
+                        errors.append("Invalid UPPER_BARRIER. Must be a float.")
+                print(f"UPPER_BARRIER: {OPTION_PARAM['UPPER_BARRIER']}")  
+                
+                if OPTION_PARAM['LOWER_BARRIER'] == '':
+                    errors.append("LOWER_BARRIER is empty")
+                else:
+                    try:              
+                        if isinstance(float(OPTION_PARAM['LOWER_BARRIER']), float) and float(OPTION_PARAM['LOWER_BARRIER']) < float(OPTION_PARAM['SPOT']):
+                            # Convert to float
+                            OPTION_PARAM['LOWER_BARRIER'] = float(OPTION_PARAM['LOWER_BARRIER'])
+                        elif isinstance(float(OPTION_PARAM['LOWER_BARRIER']), float) and float(OPTION_PARAM['LOWER_BARRIER']) >= float(OPTION_PARAM['SPOT']):
+                            errors.append("LOWER_BARRIER must be < SPOT.")
+                    except ValueError:
+                        errors.append("Invalid LOWER_BARRIER. Must be a float.")
+                print(f"LOWER_BARRIER: {OPTION_PARAM['LOWER_BARRIER']}")  
+                print('DoubleBarrier options')
 
         # Asian options
         # elif OPTION_PARAM['EXOTIC_TYPE'].upper() in ['ASIAN']:
@@ -467,7 +495,11 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
         errors.append("RuntimeError in EXOTIC_TYPE selection.")
         print("RuntimeError in EXOTIC_TYPE selection.")
         return errors
-    
+    except TypeError:
+        errors.append("TypeError in EXOTIC_TYPE selection.")
+        print("TypeError in EXOTIC_TYPE selection.")
+        return errors
+        
     # Construct payoff & option
     try:
         # Create rebate
