@@ -577,8 +577,9 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
         print("RuntimeError in constructing engine.")
         return errors
     
-    # Calculate option price
+    # CALCULATED_FIELDS
     try:
+        # Set the pricing engine
         OPTION_PARAM['OPTION'].setPricingEngine(OPTION_PARAM['ENGINE'])
 
         # Create a new dictionary to store the calculated fields
@@ -588,14 +589,17 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
         CALCULATED_FIELDS['GAMMA'] = 0.0
         CALCULATED_FIELDS['VEGA'] = 0.0
 
+        # Calculate the fields
         if str(OPTION_PARAM['EXOTIC_TYPE']).upper() == 'VANILLA':
             ql.Settings.instance().evaluationDate = OPTION_PARAM['EVALUATION_DATE']
             CALCULATED_FIELDS['OPTION_NPV'] = OPTION_PARAM['OPTION'].NPV()
-            CALCULATED_FIELDS['PREMIUM'] = OPTION_PARAM['OPTION'].NPV()*1000000/float(OPTION_PARAM['SPOT'])
-            CALCULATED_FIELDS['DELTA'] = OPTION_PARAM['OPTION'].delta()*1000000
-            CALCULATED_FIELDS['GAMMA'] = OPTION_PARAM['OPTION'].gamma()*1000000*float(OPTION_PARAM['SPOT'])/100
-            CALCULATED_FIELDS['VEGA'] = OPTION_PARAM['OPTION'].vega()*1000000*(1/100)/float(OPTION_PARAM['SPOT'])
+            CALCULATED_FIELDS['PREMIUM'] = OPTION_PARAM['OPTION'].NPV()*OPTION_PARAM['NOTIONAL']/float(OPTION_PARAM['SPOT'])
+            CALCULATED_FIELDS['DELTA'] = OPTION_PARAM['OPTION'].delta()*OPTION_PARAM['NOTIONAL']
+            CALCULATED_FIELDS['GAMMA'] = OPTION_PARAM['OPTION'].gamma()*OPTION_PARAM['NOTIONAL']*float(OPTION_PARAM['SPOT'])/100
+            CALCULATED_FIELDS['VEGA'] = OPTION_PARAM['OPTION'].vega()*OPTION_PARAM['NOTIONAL']*(1/100)/float(OPTION_PARAM['SPOT'])
             # CALCULATED_FIELDS['THETA'] = OPTION_PARAM['OPTION'].theta()*1000000*(1/365)/OPTION_PARAM['SPOT']
+        
+        # elif str(OPTION_PARAM['EXOTIC_TYPE']).upper() in ['KO_BARRIER', 'KI_BARRIER', 'KO_DB_BARRIER', 'KI_DB_BARRIER', 'KIKO', 'KOKI']:
 
         # Print the option type
         print(f"\nEXOTIC_TYPE: {EXOTIC_TYPE}")
