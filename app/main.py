@@ -613,16 +613,13 @@ async def calculate_option_prices_bulk(payload: BulkOptionPriceRequest):
             for i, task in tasks:
                 response = await task # if condition to check if response contains runtime error. where should the if conditon be?
                 response.raise_for_status() # HTTP error propagation
-                print(response)
                 # Catch runtime errors
-                if "RuntimeError" in str(response[0]):
-                    option_price = {"RuntimeError": str(response[0])}
-                else:
-                    # Retrieve the option price from the response
-                    option_price = response.json()
+            
+                # Retrieve the option price from the response
+                calculated_values = response.json()
 
                 # Store the option price along with the index
-                option_values.append((i, option_price))
+                option_values.append((i, calculated_values))
                 print(f"{i}-Payload below:")
                 print(option_values)
         except Exception as e:
