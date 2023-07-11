@@ -633,7 +633,8 @@ async def calculate_option_prices_bulk(payload: BulkOptionPriceRequest):
 
     # Sort the option prices based on the original order
     option_prices = option_values.sort(key=lambda x: x[0])
-
+    print("Payload below:")
+    print(option_prices)
     # # Extract the option prices without the index
     # option_prices = [price for _, price in option_values]
 
