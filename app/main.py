@@ -623,7 +623,7 @@ async def calculate_option_prices_bulk(payload: BulkOptionPriceRequest):
                 # Store the option price along with the index
                 option_values.append((i, option_price))
                 print(f"{i}-Payload below:")
-                print(option_prices)
+                print(option_values)
         except Exception as e:
             # Handle any exceptions and log the error
             print(f"Error occurred: {e}")
