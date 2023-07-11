@@ -633,7 +633,7 @@ async def calculate_option_prices_bulk(payload: BulkOptionPriceRequest):
             await asyncio.gather(*[task for _, task in tasks if not task.done()])
 
     print("Payload below 1:")
-    print(option_prices)
+    print(option_values)
     # Sort the option prices based on the original order
     option_prices = option_values.sort(key=lambda x: x[0])
     print("Payload below 2:")
