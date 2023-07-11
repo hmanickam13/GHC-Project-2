@@ -642,7 +642,7 @@ async def calculate_option_prices_bulk(payload: BulkOptionPriceRequest):
     # option_prices = [price for _, price in option_values]
 
     # Return the list of option prices as the final response
-    return {option_values}
+    return option_values
 
 if __name__ == '__main__':
     uvicorn.run(app, host='0.0.0.0', port=80)
