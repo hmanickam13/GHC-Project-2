@@ -634,13 +634,22 @@ async def calculate_option_prices_bulk(payload: BulkOptionPriceRequest):
     # print(option_values)
     # Sort the option prices based on the original order
     option_values.sort(key=lambda x: x[0])
+
+    updated_data = []
+    for index, value in option_values:
+        if isinstance(value, list):
+            error_dict = {"RuntimeError": value[0]}
+            updated_data.append((index, error_dict))
+        else:
+            updated_data.append((index, value))
+
     print("Payload below:")
-    print(option_values)
+    print(updated_data)
     # # Extract the option prices without the index
     # option_prices = [price for _, price in option_values]
 
     # Return the list of option prices as the final response
-    return option_values
+    return updated_data
 
 if __name__ == '__main__':
     uvicorn.run(app, host='0.0.0.0', port=80)
