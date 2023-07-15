@@ -14,28 +14,29 @@ gcloud compute ssh <instance-name> --zone=<zone>
 3. Install python, pip and git:
 ```sh
 sudo apt-get update
-sudo apt-get install python3-pip git
+sudo apt-get install python3-pip python3-venv git
 ```
 
 ### Using a Python Virtual Environment
 
-4. Create virtual environment & activate it
-```sh
-python3 -m venv venv
-source venv/bin/activate
-```
-5. Install dependencies
-```sh
-pip install -r requirements.txt
-``` 
-
-6. Clone the project repo
+4. Clone the project repo
 ```sh
 git clone https://github.com/hmanickam13/GHC-Project-2.git
 ```
 
+5. Create virtual environment & activate it
+```sh
+python3 -m venv venv
+source venv/bin/activate
+```
+
+6. Install dependencies
+```sh
+pip install -r requirements.txt
+``` 
+
 Now you are good to go!
-We can start the flask application
+We can start the FastAPI application
 
 7. Navigate to app directory & launch app
 ```sh
