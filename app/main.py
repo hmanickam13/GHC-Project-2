@@ -120,7 +120,7 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
     # Create a list to store errors
     errors = []
 
-        # CURRECY_PAIR
+    # CURRECY_PAIR
     try:
         # Process currency pair
         # If length is 6, assume format is 'USDEUR'
@@ -132,11 +132,11 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
                 OPTION_PARAM['DOMESTIC_CURRENCY'] = OPTION_PARAM['CURRENCY_PAIR'][3:6]
                 # Set the risk free rate for FOREIGN & DOMESTIC currencies
                 if OPTION_PARAM['FOREIGN_CURRENCY'] == 'USD':
-                    usdrate = 0.05 # can fetch from database or API here.
+                    usdrate = 0.05323 # can fetch from database or API here.
                     UsdRateGlobal = ql.SimpleQuote(usdrate)
                     OPTION_PARAM['FOREIGN_CURRENCY_RF_RATE'] = ql.QuoteHandle(UsdRateGlobal)
                 elif OPTION_PARAM['FOREIGN_CURRENCY'] == 'EUR':
-                    eurrate = 0.01
+                    eurrate = 0.03551
                     EurRateGlobal = ql.SimpleQuote(eurrate)
                     OPTION_PARAM['FOREIGN_CURRENCY_RF_RATE'] = ql.QuoteHandle(EurRateGlobal)
                 elif OPTION_PARAM['FOREIGN_CURRENCY'] == 'GBP':
@@ -279,6 +279,7 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
             try:
                 if isinstance(float(OPTION_PARAM['NOTIONAL']), float):
                     if float(OPTION_PARAM['NOTIONAL']) > 0:
+                        OPTION_PARAM['NOTIONAL'] = float(OPTION_PARAM['NOTIONAL'])
                         NotionalGlobal = ql.SimpleQuote(float(OPTION_PARAM['NOTIONAL']))
                         OPTION_PARAM['NOTIONAL_HANDLE'] = ql.QuoteHandle(NotionalGlobal)
                     elif float(OPTION_PARAM['NOTIONAL']) <= 0:
