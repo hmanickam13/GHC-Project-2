@@ -597,7 +597,7 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
             CALCULATED_FIELDS['PREMIUM'] = OPTION_PARAM['OPTION'].NPV()*OPTION_PARAM['NOTIONAL']/float(OPTION_PARAM['SPOT'])
             CALCULATED_FIELDS['DELTA'] = OPTION_PARAM['OPTION'].delta()*OPTION_PARAM['NOTIONAL']/float(OPTION_PARAM['SPOT'])
             CALCULATED_FIELDS['GAMMA'] = (OPTION_PARAM['OPTION'].gamma()*float(OPTION_PARAM['SPOT']))/100
-            CALCULATED_FIELDS['VEGA'] = OPTION_PARAM['OPTION'].vega()*(1/100)/float(OPTION_PARAM['SPOT'])
+            CALCULATED_FIELDS['VEGA'] = OPTION_PARAM['OPTION'].vega()/float(OPTION_PARAM['SPOT'])
             # CALCULATED_FIELDS['THETA'] = OPTION_PARAM['OPTION'].theta()*1000000*(1/365)/OPTION_PARAM['SPOT']
         
         # elif str(OPTION_PARAM['EXOTIC_TYPE']).upper() in ['KO_BARRIER', 'KI_BARRIER', 'KO_DB_BARRIER', 'KI_DB_BARRIER', 'KIKO', 'KOKI']:
