@@ -132,11 +132,11 @@ async def preprocess_option_json(request: Request, payload: OptionPriceRequest):
                 OPTION_PARAM['DOMESTIC_CURRENCY'] = OPTION_PARAM['CURRENCY_PAIR'][3:6]
                 # Set the risk free rate for FOREIGN & DOMESTIC currencies
                 if OPTION_PARAM['FOREIGN_CURRENCY'] == 'USD':
-                    usdrate = 0.05323 # can fetch from database or API here.
+                    usdrate = 0.05322 # can fetch from database or API here.
                     UsdRateGlobal = ql.SimpleQuote(usdrate)
                     OPTION_PARAM['FOREIGN_CURRENCY_RF_RATE'] = ql.QuoteHandle(UsdRateGlobal)
                 elif OPTION_PARAM['FOREIGN_CURRENCY'] == 'EUR':
-                    eurrate = 0.03551
+                    eurrate = 0.03549
                     EurRateGlobal = ql.SimpleQuote(eurrate)
                     OPTION_PARAM['FOREIGN_CURRENCY_RF_RATE'] = ql.QuoteHandle(EurRateGlobal)
                 elif OPTION_PARAM['FOREIGN_CURRENCY'] == 'GBP':
